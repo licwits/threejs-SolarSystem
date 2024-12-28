@@ -1,8 +1,6 @@
 import * as THREE from 'three'
-import vertexShader from '@/shader/sun/vertex.glsl?raw'
-import fragmentShader from '@/shader/sun/fragment.glsl?raw'
-import flareVertexShader from '@/shader/flare/vertex.glsl?raw'
-import flareFragmentShader from '@/shader/flare/fragment.glsl?raw'
+import sunVertexShader from '@/shader/sun/vertex.glsl?raw'
+import sunFragmentShader from '@/shader/sun/fragment.glsl?raw'
 import { gui } from '../gui'
 import { camera } from '../camera'
 
@@ -36,8 +34,8 @@ export class Sun {
           brightnessVariation: { value: gui.params.shader.brightnessVariation },
           emissiveIntensity: { value: gui.params.emissiveIntensity }
         },
-        vertexShader,
-        fragmentShader,
+        vertexShader: sunVertexShader,
+        fragmentShader: sunFragmentShader,
         transparent: true
       })
 
