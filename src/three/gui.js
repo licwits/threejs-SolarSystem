@@ -37,7 +37,14 @@ class SunGUI {
         disturbanceScale: 0.1,
         glowIntensity: 0.8,
         glowColor: '#ff6619',
-        brightnessVariation: 0
+        brightnessVariation: 0,
+        normalScale: 1.0
+      },
+
+      // 光晕参数
+      halo: {
+        size: 50, // 默认太阳大小的10倍
+        opacity: 0.6
       }
     }
   }
@@ -62,7 +69,7 @@ class SunGUI {
 
     // 耀斑控制
     const flareFolder = this.gui.addFolder('耀斑设置')
-    flareFolder.add(this.params.flare, 'frequency', 0, 0.01, 0.0001).name('出现频率')
+    flareFolder.add(this.params.flare, 'frequency', 0, 0.01, 0.0001).name('出频率')
     flareFolder.add(this.params.flare, 'opacity', 0, 1, 0.05).name('不透明度')
 
     const flareDuration = flareFolder.addFolder('持续时间')
@@ -84,6 +91,26 @@ class SunGUI {
     shaderFolder.add(this.params.shader, 'glowIntensity', 0, 2, 0.1).name('发光强度')
     shaderFolder.addColor(this.params.shader, 'glowColor').name('发光颜色')
     shaderFolder.add(this.params.shader, 'brightnessVariation', 0, 0.5, 0.01).name('亮度变化')
+
+    // 添加光晕控制
+    const haloFolder = this.gui.addFolder('光晕设置')
+    haloFolder
+      .add(this.params.halo, 'size', 20, 100, 0.1)
+      .name('大小')
+      .onChange(() => {
+        if (scene.sun && scene.sun.updateHaloSize) {
+          scene.sun.updateHaloSize()
+        }
+      })
+
+    haloFolder
+      .add(this.params.halo, 'opacity', 0, 1, 0.01)
+      .name('不透明度')
+      .onChange(() => {
+        if (scene.sun && scene.sun.updateHaloOpacity) {
+          scene.sun.updateHaloOpacity()
+        }
+      })
   }
 
   updateSunSize(value) {
@@ -109,14 +136,24 @@ class SunGUI {
       if (sunLight) {
         sunLight.intensity = this.params.sunLight.intensity
         sunLight.distance = this.params.sunLight.distance
-        sunLight.color.setHex(this.params.sunLight.color)
+        // 修改颜色处理方式
+        if (typeof this.params.sunLight.color === 'string') {
+          sunLight.color.set(this.params.sunLight.color)
+        } else {
+          sunLight.color.setHex(this.params.sunLight.color)
+        }
       }
 
       // 更新环境光
       const ambientLight = scene.sun.mesh.children.find((child) => child instanceof THREE.AmbientLight)
       if (ambientLight) {
         ambientLight.intensity = this.params.ambientLight.intensity
-        ambientLight.color.setHex(this.params.ambientLight.color)
+        // 修改颜色处理方式
+        if (typeof this.params.ambientLight.color === 'string') {
+          ambientLight.color.set(this.params.ambientLight.color)
+        } else {
+          ambientLight.color.setHex(this.params.ambientLight.color)
+        }
       }
     }
   }

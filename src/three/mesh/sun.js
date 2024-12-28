@@ -4,6 +4,7 @@ import fragmentShader from '@/shader/sun/fragment.glsl?raw'
 import flareVertexShader from '@/shader/flare/vertex.glsl?raw'
 import flareFragmentShader from '@/shader/flare/fragment.glsl?raw'
 import { gui } from '../gui'
+import { camera } from '../camera'
 
 export class Sun {
   constructor() {
@@ -13,6 +14,7 @@ export class Sun {
     this.time = 0
     this.flareStates = [] // 存储每个耀斑的状态
     this.rotationSpeed = gui.params.rotationSpeed // 使用 GUI 中的初始值
+    this.halo = null // 添加光晕对象
   }
 
   async init() {
@@ -42,15 +44,45 @@ export class Sun {
       this.mesh = new THREE.Mesh(geometry, material)
 
       // 添加发光效果
-      const sunLight = new THREE.PointLight(gui.params.sunLight.color, gui.params.sunLight.intensity, gui.params.sunLight.distance)
+      const sunLight = new THREE.PointLight()
+      sunLight.intensity = gui.params.sunLight.intensity
+      sunLight.distance = gui.params.sunLight.distance
+      if (typeof gui.params.sunLight.color === 'string') {
+        sunLight.color.set(gui.params.sunLight.color)
+      } else {
+        sunLight.color.setHex(gui.params.sunLight.color)
+      }
       this.mesh.add(sunLight)
 
       // 添加环境光
-      const ambientLight = new THREE.AmbientLight(gui.params.ambientLight.color, gui.params.ambientLight.intensity)
+      const ambientLight = new THREE.AmbientLight()
+      ambientLight.intensity = gui.params.ambientLight.intensity
+      if (typeof gui.params.ambientLight.color === 'string') {
+        ambientLight.color.set(gui.params.ambientLight.color)
+      } else {
+        ambientLight.color.setHex(gui.params.ambientLight.color)
+      }
       this.mesh.add(ambientLight)
 
       // 添加太阳耀斑
       await this.addSunFlares()
+
+      // 创建太阳光晕
+      const haloTexture = await this.textureLoader.loadAsync('/textures/th_sun/solar_halo.png')
+      const haloGeometry = new THREE.PlaneGeometry(1, 1) // 使用单位大小，通过缩放控制实际大小
+      const haloMaterial = new THREE.MeshBasicMaterial({
+        map: haloTexture,
+        transparent: true,
+        opacity: gui.params.halo.opacity,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      })
+
+      this.halo = new THREE.Mesh(haloGeometry, haloMaterial)
+      this.halo.renderOrder = -1 // 确保光晕在太阳后面渲染
+      this.updateHaloSize() // 初始化光晕大小
+      this.mesh.add(this.halo)
 
       return this.mesh
     } catch (error) {
@@ -62,27 +94,14 @@ export class Sun {
     const flareTextures = await Promise.all([this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare1.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare2.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare3.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare4.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare5.png')])
 
     flareTextures.forEach((texture, index) => {
-      // 创建耀斑几何体 - 使用更细长的形状
-      const geometry = new THREE.PlaneGeometry(0.2, 2)
-
-      const material = new THREE.ShaderMaterial({
-        uniforms: {
-          flareTexture: { value: texture },
-          time: { value: 0 },
-          opacity: { value: 0 },
-          progress: { value: 0 },
-          arcHeight: { value: 0 },
-          startAngle: { value: 0 },
-          arcWidth: { value: 0 }
-        },
-        vertexShader: flareVertexShader,
-        fragmentShader: flareFragmentShader,
+      const material = new THREE.SpriteMaterial({
+        map: texture,
         transparent: true,
         blending: THREE.AdditiveBlending,
-        depthWrite: false
+        opacity: 0
       })
 
-      const flare = new THREE.Mesh(geometry, material)
+      const flare = new THREE.Sprite(material)
       const scale = gui.params.flare.size[0] + Math.random() * (gui.params.flare.size[1] - gui.params.flare.size[0])
       flare.scale.set(scale, scale, 1)
 
@@ -97,10 +116,7 @@ export class Sun {
         duration: 0,
         fadeIn: false,
         fadeOut: false,
-        startAngle: 0,
-        arcHeight: 0,
-        arcWidth: 0,
-        baseAngle: angle // 记录基础角度
+        baseAngle: angle
       })
       this.mesh.add(flare)
     })
@@ -110,30 +126,16 @@ export class Sun {
     const flare = this.flares[index]
     const state = this.flareStates[index]
 
-    // 仅在基础位置触发耀斑
     if (!state.active) {
       if (Math.random() < gui.params.flare.frequency) {
         state.active = true
         state.duration = gui.params.flare.duration[0] + Math.random() * (gui.params.flare.duration[1] - gui.params.flare.duration[0])
         state.fadeIn = true
         state.fadeOut = false
-        state.startAngle = state.baseAngle // 从基础位置开始
-        state.arcHeight = gui.params.flare.arcHeight[0] + Math.random() * (gui.params.flare.arcHeight[1] - gui.params.flare.arcHeight[0])
-        state.arcWidth = Math.PI * 0.15 // 固定弧度范围，使运动更可控
       }
     }
 
     if (state.active) {
-      const progress = 1 - state.duration / gui.params.flare.duration[1]
-
-      // 更新着色器 uniforms
-      flare.material.uniforms.time.value = this.time
-      flare.material.uniforms.progress.value = progress
-      flare.material.uniforms.opacity.value = flare.material.opacity
-      flare.material.uniforms.arcHeight.value = state.arcHeight
-      flare.material.uniforms.startAngle.value = state.startAngle
-      flare.material.uniforms.arcWidth.value = state.arcWidth
-
       // 淡入淡出效果
       if (state.fadeIn) {
         flare.material.opacity += deltaTime
@@ -155,34 +157,21 @@ export class Sun {
           flare.material.opacity = 0
           state.active = false
           state.fadeOut = false
-          // 重置到基础位置
-          const radius = gui.params.sunSize
-          flare.position.set(Math.cos(state.baseAngle) * radius, Math.sin(state.baseAngle) * radius, 0)
         }
       }
+    }
+  }
 
-      // 弧形喷射动画
-      if (state.active) {
-        const baseRadius = gui.params.sunSize
-        const currentAngle = state.startAngle + state.arcWidth * progress
-        const heightProgress = Math.sin(progress * Math.PI)
-        const currentHeight = state.arcHeight * heightProgress
+  updateHaloSize() {
+    if (this.halo) {
+      const size = gui.params.halo.size
+      this.halo.scale.set(size, size, 1)
+    }
+  }
 
-        // 计算位置
-        const x = Math.cos(currentAngle) * (baseRadius + currentHeight)
-        const y = Math.sin(currentAngle) * (baseRadius + currentHeight)
-        flare.position.set(x, y, 0)
-
-        // 动态缩放
-        const baseScale = gui.params.flare.size[0] + Math.random() * (gui.params.flare.size[1] - gui.params.flare.size[0])
-        const scaleMultiplier = 1 + heightProgress * 0.3
-        const scale = baseScale * scaleMultiplier
-        flare.scale.set(scale, scale * 1.5, 1) // 垂直方向拉长一些
-
-        // 根据运动方向旋转耀斑
-        const angle = Math.atan2(y, x)
-        flare.rotation.z = angle + Math.PI / 2
-      }
+  updateHaloOpacity() {
+    if (this.halo && this.halo.material) {
+      this.halo.material.opacity = gui.params.halo.opacity
     }
   }
 
@@ -205,6 +194,13 @@ export class Sun {
       this.flares.forEach((_, index) => {
         this.updateFlare(index, deltaTime)
       })
+
+      // 更新光晕朝向和属性
+      if (this.halo) {
+        this.halo.lookAt(camera.camera.position)
+        this.updateHaloSize()
+        this.updateHaloOpacity()
+      }
     }
   }
 }
