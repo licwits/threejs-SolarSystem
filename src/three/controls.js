@@ -12,7 +12,7 @@ class Controls {
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.05
     this.controls.minDistance = 20
-    this.controls.maxDistance = 100
+    // this.controls.maxDistance = 100
   }
 
   update() {

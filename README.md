@@ -1,29 +1,8 @@
-# threejs-galaxy
 
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+实现步骤
+1. 搭建项目
+2. 添加环境贴图
+3. 制作太阳
+  a. 添加球形几何体
+  b. 添加与太阳有关的贴图
+  c. 添加自定义着色器材质

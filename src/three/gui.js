@@ -51,6 +51,13 @@ class SunGUI {
       environment: {
         backgroundIntensity: 0.5,
         environmentIntensity: 0.5
+      },
+
+      // 轨道参数
+      orbits: {
+        visible: true,
+        scale: 20,
+        opacity: 0.5
       }
     }
   }
@@ -135,6 +142,35 @@ class SunGUI {
       .onChange(() => {
         if (scene.scene) {
           scene.scene.environmentIntensity = this.params.environment.environmentIntensity
+        }
+      })
+
+    // 添加轨道控制
+    const orbitFolder = this.gui.addFolder('轨道设置')
+    orbitFolder
+      .add(this.params.orbits, 'visible')
+      .name('显示轨道')
+      .onChange(() => {
+        if (scene.orbits) {
+          scene.orbits.updateVisibility(this.params.orbits.visible)
+        }
+      })
+
+    orbitFolder
+      .add(this.params.orbits, 'scale', 10, 50, 1)
+      .name('轨道缩放')
+      .onChange(() => {
+        if (scene.orbits) {
+          scene.orbits.updateScale(this.params.orbits.scale)
+        }
+      })
+
+    orbitFolder
+      .add(this.params.orbits, 'opacity', 0, 1, 0.1)
+      .name('轨道透明度')
+      .onChange(() => {
+        if (scene.orbits) {
+          scene.orbits.updateOpacity(this.params.orbits.opacity)
         }
       })
   }
