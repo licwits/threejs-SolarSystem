@@ -45,6 +45,12 @@ class SunGUI {
       halo: {
         size: 50, // 默认太阳大小的10倍
         opacity: 0.6
+      },
+
+      // 环境参数
+      environment: {
+        backgroundIntensity: 0.5,
+        environmentIntensity: 0.5
       }
     }
   }
@@ -109,6 +115,26 @@ class SunGUI {
       .onChange(() => {
         if (scene.sun && scene.sun.updateHaloOpacity) {
           scene.sun.updateHaloOpacity()
+        }
+      })
+
+    // 添加环境控制
+    const envFolder = this.gui.addFolder('环境设置')
+    envFolder
+      .add(this.params.environment, 'backgroundIntensity', 0, 2, 0.1)
+      .name('背景强度')
+      .onChange(() => {
+        if (scene.scene) {
+          scene.scene.backgroundIntensity = this.params.environment.backgroundIntensity
+        }
+      })
+
+    envFolder
+      .add(this.params.environment, 'environmentIntensity', 0, 2, 0.1)
+      .name('环境光强度')
+      .onChange(() => {
+        if (scene.scene) {
+          scene.scene.environmentIntensity = this.params.environment.environmentIntensity
         }
       })
   }
