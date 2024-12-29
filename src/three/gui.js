@@ -74,6 +74,12 @@ class SunGUI {
       lightHelper: {
         sunHelper: false,
         mercuryHelper: false
+      },
+
+      // 添加金星参数
+      venus: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
       }
     }
   }
@@ -200,6 +206,9 @@ class SunGUI {
         if (scene.mercury) {
           scene.mercury.updateOrbit(this.params.orbits.scale)
         }
+        if (scene.venus) {
+          scene.venus.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -253,6 +262,26 @@ class SunGUI {
           if (sunLight) {
             sunLight.shadow.radius = this.params.sunLight.shadowRadius
           }
+        }
+      })
+
+    // 添加金星控制
+    const venusFolder = this.gui.addFolder('金星设置')
+    venusFolder
+      .add(this.params.venus, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.venus) {
+          scene.venus.rotationSpeed = this.params.venus.rotationSpeed
+        }
+      })
+
+    venusFolder
+      .add(this.params.venus, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.venus && scene.venus.mesh) {
+          scene.venus.mesh.material.normalScale.set(this.params.venus.normalScale, this.params.venus.normalScale)
         }
       })
   }

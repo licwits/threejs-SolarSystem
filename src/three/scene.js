@@ -3,6 +3,7 @@ import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 import { Sun } from './mesh/sun'
 import { Orbits } from './mesh/orbits'
 import { Mercury } from './mesh/mercury'
+import { Venus } from './mesh/venus'
 
 class Scene {
   constructor() {
@@ -10,6 +11,7 @@ class Scene {
     this.sun = new Sun()
     this.orbits = new Orbits()
     this.mercury = new Mercury()
+    this.venus = new Venus()
     this.sunLight = null
   }
 
@@ -45,6 +47,10 @@ class Scene {
     const mercuryMesh = await this.mercury.init()
     this.scene.add(mercuryMesh)
 
+    // 添加金星
+    const venusMesh = await this.venus.init()
+    this.scene.add(venusMesh)
+
     return this.scene
   }
 
@@ -53,6 +59,8 @@ class Scene {
     this.sun.animate()
     // 更新水星动画
     this.mercury.animate()
+    // 更新金星动画
+    this.venus.animate()
   }
 }
 
