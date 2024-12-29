@@ -108,6 +108,12 @@ class SunGUI {
       // 添加海王星参数
       neptune: {
         rotationSpeed: 0.0001
+      },
+
+      // 添加地球参数
+      earth: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
       }
     }
   }
@@ -251,6 +257,9 @@ class SunGUI {
         }
         if (scene.neptune) {
           scene.neptune.updateOrbit(this.params.orbits.scale)
+        }
+        if (scene.earth) {
+          scene.earth.updateOrbit(this.params.orbits.scale)
         }
       })
 
@@ -407,6 +416,26 @@ class SunGUI {
       .onChange(() => {
         if (scene.neptune) {
           scene.neptune.rotationSpeed = this.params.neptune.rotationSpeed
+        }
+      })
+
+    // 添加地球控制
+    const earthFolder = this.gui.addFolder('地球设置')
+    earthFolder
+      .add(this.params.earth, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.earth) {
+          scene.earth.rotationSpeed = this.params.earth.rotationSpeed
+        }
+      })
+
+    earthFolder
+      .add(this.params.earth, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.earth && scene.earth.mesh) {
+          scene.earth.mesh.material.normalScale.set(this.params.earth.normalScale, this.params.earth.normalScale)
         }
       })
   }
