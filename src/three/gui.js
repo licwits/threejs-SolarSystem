@@ -98,6 +98,11 @@ class SunGUI {
       saturn: {
         rotationSpeed: 0.0001,
         normalScale: 0.1
+      },
+
+      // 添加天王星参数
+      uranus: {
+        rotationSpeed: 0.0001
       }
     }
   }
@@ -236,6 +241,9 @@ class SunGUI {
         if (scene.saturn) {
           scene.saturn.updateOrbit(this.params.orbits.scale)
         }
+        if (scene.uranus) {
+          scene.uranus.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -369,6 +377,17 @@ class SunGUI {
       .onChange(() => {
         if (scene.saturn && scene.saturn.mesh) {
           scene.saturn.mesh.material.normalScale.set(this.params.saturn.normalScale, this.params.saturn.normalScale)
+        }
+      })
+
+    // 添加天王星控制
+    const uranusFolder = this.gui.addFolder('天王星设置')
+    uranusFolder
+      .add(this.params.uranus, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.uranus) {
+          scene.uranus.rotationSpeed = this.params.uranus.rotationSpeed
         }
       })
   }
