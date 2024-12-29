@@ -10,16 +10,19 @@ class SunGUI {
       sunSize: 5,
       rotationSpeed: 0.001,
       emissiveIntensity: 1.0,
+      visible: true,
 
       // 光照参数
       sunLight: {
         intensity: 2,
         distance: 100,
-        color: 0xffff00
+        color: 0xffff00,
+        shadowBias: -0.001,
+        shadowRadius: 1
       },
       ambientLight: {
-        intensity: 0.5,
-        color: 0xffff00
+        intensity: 0.1,
+        color: 0xffffff
       },
 
       // 耀斑参数
@@ -45,8 +48,7 @@ class SunGUI {
       halo: {
         intensity: 1.5,
         power: 2.0,
-        color: '#ffaa00',
-        planeOpacity: 0.3
+        color: '#ffaa00'
       },
 
       // 环境参数
@@ -60,6 +62,18 @@ class SunGUI {
         visible: true,
         scale: 20,
         opacity: 0.5
+      },
+
+      // 添加水星参数
+      mercury: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
+      },
+
+      // 移除光源辅助参数
+      lightHelper: {
+        sunHelper: false,
+        mercuryHelper: false
       }
     }
   }
@@ -67,6 +81,15 @@ class SunGUI {
   init() {
     // 基础参数控制
     const sunFolder = this.gui.addFolder('太阳基础设置')
+    sunFolder
+      .add(this.params, 'visible')
+      .name('显示太阳')
+      .onChange(() => {
+        if (scene.sun && scene.sun.mesh) {
+          scene.sun.mesh.visible = this.params.visible
+        }
+      })
+
     sunFolder.add(this.params, 'sunSize', 1, 10, 0.1).onChange(this.updateSunSize.bind(this))
     sunFolder.add(this.params, 'rotationSpeed', 0, 0.01, 0.0001).onChange(this.updateRotationSpeed.bind(this))
     sunFolder.add(this.params, 'emissiveIntensity', 0, 2, 0.1).onChange(this.updateEmissive.bind(this))
@@ -74,8 +97,8 @@ class SunGUI {
     // 光照控制
     const lightFolder = this.gui.addFolder('光照设置')
     const sunLightFolder = lightFolder.addFolder('太阳光')
-    sunLightFolder.add(this.params.sunLight, 'intensity', 0, 5, 0.1).onChange(this.updateLights.bind(this))
-    sunLightFolder.add(this.params.sunLight, 'distance', 10, 200, 1).onChange(this.updateLights.bind(this))
+    sunLightFolder.add(this.params.sunLight, 'intensity', 0, 100, 0.1).onChange(this.updateLights.bind(this))
+    sunLightFolder.add(this.params.sunLight, 'distance', 10, 500, 1).onChange(this.updateLights.bind(this))
     sunLightFolder.addColor(this.params.sunLight, 'color').onChange(this.updateLights.bind(this))
 
     const ambientFolder = lightFolder.addFolder('环境光')
@@ -136,16 +159,6 @@ class SunGUI {
         }
       })
 
-    // 添加平面光晕控制
-    haloFolder
-      .add(this.params.halo, 'planeOpacity', 0, 1, 0.01)
-      .name('平面光晕透明度')
-      .onChange(() => {
-        if (scene.sun && scene.sun.haloPlane) {
-          scene.sun.haloPlane.material.opacity = this.params.halo.planeOpacity
-        }
-      })
-
     // 添加环境控制
     const envFolder = this.gui.addFolder('环境设置')
     envFolder
@@ -184,6 +197,9 @@ class SunGUI {
         if (scene.orbits) {
           scene.orbits.updateScale(this.params.orbits.scale)
         }
+        if (scene.mercury) {
+          scene.mercury.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -192,6 +208,51 @@ class SunGUI {
       .onChange(() => {
         if (scene.orbits) {
           scene.orbits.updateOpacity(this.params.orbits.opacity)
+        }
+      })
+
+    // 添加水星控制
+    const mercuryFolder = this.gui.addFolder('水星设置')
+    mercuryFolder
+      .add(this.params.mercury, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.mercury) {
+          scene.mercury.rotationSpeed = this.params.mercury.rotationSpeed
+        }
+      })
+
+    mercuryFolder
+      .add(this.params.mercury, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.mercury && scene.mercury.mesh) {
+          scene.mercury.mesh.material.normalScale.set(this.params.mercury.normalScale, this.params.mercury.normalScale)
+        }
+      })
+
+    // 在太阳光控制中添加阴影参数
+    sunLightFolder
+      .add(this.params.sunLight, 'shadowBias', -0.01, 0.01, 0.001)
+      .name('阴影偏移')
+      .onChange(() => {
+        if (scene.sun && scene.sun.mesh) {
+          const sunLight = scene.sun.mesh.children.find((child) => child instanceof THREE.PointLight)
+          if (sunLight) {
+            sunLight.shadow.bias = this.params.sunLight.shadowBias
+          }
+        }
+      })
+
+    sunLightFolder
+      .add(this.params.sunLight, 'shadowRadius', 0, 5, 0.1)
+      .name('阴影模糊')
+      .onChange(() => {
+        if (scene.sun && scene.sun.mesh) {
+          const sunLight = scene.sun.mesh.children.find((child) => child instanceof THREE.PointLight)
+          if (sunLight) {
+            sunLight.shadow.radius = this.params.sunLight.shadowRadius
+          }
         }
       })
   }

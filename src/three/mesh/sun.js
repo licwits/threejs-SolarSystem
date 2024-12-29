@@ -15,7 +15,6 @@ export class Sun {
     this.flareStates = [] // 存储每个耀斑的状态
     this.rotationSpeed = gui.params.rotationSpeed // 使用 GUI 中的初始值
     this.halo = null // 添加光晕对象
-    this.haloPlane = null // 添加平面光晕
   }
 
   async init() {
@@ -38,15 +37,26 @@ export class Sun {
         },
         vertexShader: sunVertexShader,
         fragmentShader: sunFragmentShader,
-        transparent: true
+        transparent: true,
+        depthWrite: true,
+        depthTest: true
       })
 
       this.mesh = new THREE.Mesh(geometry, material)
+      this.mesh.visible = gui.params.visible // 设置初始可见性
 
       // 添加发光效果
       const sunLight = new THREE.PointLight()
       sunLight.intensity = gui.params.sunLight.intensity
       sunLight.distance = gui.params.sunLight.distance
+      sunLight.castShadow = true // 启用阴影投射
+      // 设置阴影参数
+      sunLight.shadow.mapSize.width = 2048
+      sunLight.shadow.mapSize.height = 2048
+      sunLight.shadow.camera.near = 0.1
+      sunLight.shadow.camera.far = 1000
+      sunLight.shadow.bias = -0.001 // 减少阴影失真
+
       if (typeof gui.params.sunLight.color === 'string') {
         sunLight.color.set(gui.params.sunLight.color)
       } else {
@@ -79,30 +89,12 @@ export class Sun {
         transparent: true,
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
-        depthWrite: false,
-        depthTest: false
+        depthWrite: true,
+        depthTest: true
       })
 
       this.halo = new THREE.Mesh(haloGeometry, haloMaterial)
       this.mesh.add(this.halo)
-
-      // 创建平面光晕
-      const haloTexture = await this.textureLoader.loadAsync('/textures/th_sun/solar_halo.png')
-      const planeSize = gui.params.sunSize * 8 // 平面光晕大小
-      const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize)
-      const planeMaterial = new THREE.MeshBasicMaterial({
-        map: haloTexture,
-        transparent: true,
-        opacity: 0.3,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        depthTest: false,
-        side: THREE.DoubleSide
-      })
-
-      this.haloPlane = new THREE.Mesh(planeGeometry, planeMaterial)
-      this.haloPlane.renderOrder = -1 // 确保在最底层渲染
-      this.mesh.add(this.haloPlane)
 
       // 修改耀斑的创建方式
       await this.addSunFlares()
@@ -225,13 +217,6 @@ export class Sun {
         this.halo.material.uniforms.time.value = this.time
         this.halo.material.uniforms.intensity.value = gui.params.halo.intensity
         this.halo.material.uniforms.power.value = gui.params.halo.power
-      }
-
-      // 更新平面光晕朝向
-      if (this.haloPlane) {
-        this.haloPlane.lookAt(camera.camera.position)
-        // 更新平面光晕透明度
-        this.haloPlane.material.opacity = gui.params.halo.planeOpacity
       }
     }
   }
