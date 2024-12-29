@@ -10,6 +10,7 @@ import { Saturn } from './mesh/saturn'
 import { Uranus } from './mesh/uranus'
 import { Neptune } from './mesh/neptune'
 import { Earth } from './mesh/earth'
+import { AsteroidBelt } from './mesh/asteroidBelt'
 
 class Scene {
   constructor() {
@@ -20,6 +21,7 @@ class Scene {
     this.venus = new Venus()
     this.earth = new Earth()
     this.mars = new Mars()
+    this.asteroidBelt = new AsteroidBelt()
     this.jupiter = new Jupiter()
     this.saturn = new Saturn()
     this.uranus = new Uranus()
@@ -71,6 +73,10 @@ class Scene {
     const marsMesh = await this.mars.init()
     this.scene.add(marsMesh)
 
+    // 添加小行星带
+    const asteroidBeltMesh = this.asteroidBelt.init()
+    this.scene.add(asteroidBeltMesh)
+
     // 添加木星
     const jupiterMesh = await this.jupiter.init()
     this.scene.add(jupiterMesh)
@@ -101,6 +107,8 @@ class Scene {
     this.earth.animate()
     // 更新火星动画
     this.mars.animate()
+    // 更新小行星带
+    this.asteroidBelt.animate()
     // 更新木星动画
     this.jupiter.animate()
     // 更新土星动画
