@@ -24,7 +24,7 @@ export class Sun {
       const coverTexture = await this.textureLoader.loadAsync('/textures/th_sun/medres/th_suncover.png')
 
       // 创建自定义着色器材质
-      const geometry = new THREE.SphereGeometry(gui.params.sunSize, 128, 128)
+      const geometry = new THREE.SphereGeometry(5, 128, 128)
       const material = new THREE.ShaderMaterial({
         uniforms: {
           sunTexture: { value: sunTexture },

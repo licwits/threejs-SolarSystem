@@ -6,10 +6,10 @@ export class Earth {
     this.mesh = null
     this.clouds = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 1.0 // 地球作为基准单位
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.00017 // 公转速度（地球公转周期365天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.5 // 原比例0.1 * 5
+    this.rotationSpeed = 0.001 // 自转速度
+    this.revolutionSpeed = 0.0017 // 公转速度（地球公转周期365天）
+    this.revolutionAngle = Math.PI // 起始位置在180度
     this.orbitRadius = 0 // 存储轨道半径
   }
 

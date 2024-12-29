@@ -5,10 +5,10 @@ export class Uranus {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 4.007 // 天王星相对地球半径比例
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.000012 // 公转速度（天王星公转周期约30687天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.20035 // 原比例0.04007 * 5
+    this.rotationSpeed = 0.001
+    this.revolutionSpeed = 0.00012
+    this.revolutionAngle = Math.PI * 1.25 // 起始位置在225度
     this.orbitRadius = 0 // 存储轨道半径
     this.ring = null // 天王星环
   }

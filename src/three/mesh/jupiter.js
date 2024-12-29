@@ -5,10 +5,10 @@ export class Jupiter {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 11.209 // 木星相对地球半径比例
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.000038 // 公转速度（木星公转周期约4333天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.6045 // 原比例0.1209 * 5
+    this.rotationSpeed = 0.001 // 自转速度
+    this.revolutionSpeed = 0.00038 // 公转速度（木星公转周期约4333天）
+    this.revolutionAngle = Math.PI * 0.25 // 起始位置在45度
     this.orbitRadius = 0 // 存储轨道半径
   }
 

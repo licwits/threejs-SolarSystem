@@ -5,10 +5,10 @@ export class Venus {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.949 // 金星相对地球半径比例
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.00035 // 公转速度（金星公转周期约225天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.4745 // 原比例0.0949 * 5
+    this.rotationSpeed = 0.001 // 自转速度
+    this.revolutionSpeed = 0.0035 // 公转速度（金星公转周期约225天）
+    this.revolutionAngle = Math.PI * 0.5 // 起始位置在90度
     this.orbitRadius = 0 // 存储轨道半径
   }
 

@@ -5,10 +5,10 @@ export class Neptune {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 3.883 // 海王星相对地球半径比例
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.0000061 // 公转速度（海王星公转周期约60190天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.19415 // 原比例0.03883 * 5
+    this.rotationSpeed = 0.001
+    this.revolutionSpeed = 0.000061
+    this.revolutionAngle = Math.PI * 1.75 // 起始位置在315度
     this.orbitRadius = 0 // 存储轨道半径
   }
 

@@ -5,10 +5,10 @@ export class Mercury {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.383 // 水星相对地球半径比例
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.00047 // 公转速度（水星公转周期约88天）
-    this.revolutionAngle = 0 // 公转角度
+    this.radius = 0.1915 // 原比例0.0383 * 5
+    this.rotationSpeed = 0.001 // 加快10倍
+    this.revolutionSpeed = 0.0047 // 加快10倍
+    this.revolutionAngle = 0 // 起始位置
     this.orbitRadius = 0 // 存储轨道半径
   }
 
