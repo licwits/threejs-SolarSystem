@@ -103,6 +103,11 @@ class SunGUI {
       // 添加天王星参数
       uranus: {
         rotationSpeed: 0.0001
+      },
+
+      // 添加海王星参数
+      neptune: {
+        rotationSpeed: 0.0001
       }
     }
   }
@@ -243,6 +248,9 @@ class SunGUI {
         }
         if (scene.uranus) {
           scene.uranus.updateOrbit(this.params.orbits.scale)
+        }
+        if (scene.neptune) {
+          scene.neptune.updateOrbit(this.params.orbits.scale)
         }
       })
 
@@ -388,6 +396,17 @@ class SunGUI {
       .onChange(() => {
         if (scene.uranus) {
           scene.uranus.rotationSpeed = this.params.uranus.rotationSpeed
+        }
+      })
+
+    // 添加海王星控制
+    const neptuneFolder = this.gui.addFolder('海王星设置')
+    neptuneFolder
+      .add(this.params.neptune, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.neptune) {
+          scene.neptune.rotationSpeed = this.params.neptune.rotationSpeed
         }
       })
   }
