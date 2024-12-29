@@ -5,6 +5,7 @@ import { Orbits } from './mesh/orbits'
 import { Mercury } from './mesh/mercury'
 import { Venus } from './mesh/venus'
 import { Mars } from './mesh/mars'
+import { Jupiter } from './mesh/jupiter'
 
 class Scene {
   constructor() {
@@ -14,6 +15,7 @@ class Scene {
     this.mercury = new Mercury()
     this.venus = new Venus()
     this.mars = new Mars()
+    this.jupiter = new Jupiter()
     this.sunLight = null
   }
 
@@ -57,6 +59,10 @@ class Scene {
     const marsMesh = await this.mars.init()
     this.scene.add(marsMesh)
 
+    // 添加木星
+    const jupiterMesh = await this.jupiter.init()
+    this.scene.add(jupiterMesh)
+
     return this.scene
   }
 
@@ -69,6 +75,8 @@ class Scene {
     this.venus.animate()
     // 更新火星动画
     this.mars.animate()
+    // 更新木星动画
+    this.jupiter.animate()
   }
 }
 

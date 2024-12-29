@@ -86,6 +86,12 @@ class SunGUI {
       mars: {
         rotationSpeed: 0.0001,
         normalScale: 0.1
+      },
+
+      // 添加木星参数
+      jupiter: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
       }
     }
   }
@@ -218,6 +224,9 @@ class SunGUI {
         if (scene.mars) {
           scene.mars.updateOrbit(this.params.orbits.scale)
         }
+        if (scene.jupiter) {
+          scene.jupiter.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -311,6 +320,26 @@ class SunGUI {
       .onChange(() => {
         if (scene.mars && scene.mars.mesh) {
           scene.mars.mesh.material.normalScale.set(this.params.mars.normalScale, this.params.mars.normalScale)
+        }
+      })
+
+    // 添加木星控制
+    const jupiterFolder = this.gui.addFolder('木星设置')
+    jupiterFolder
+      .add(this.params.jupiter, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.jupiter) {
+          scene.jupiter.rotationSpeed = this.params.jupiter.rotationSpeed
+        }
+      })
+
+    jupiterFolder
+      .add(this.params.jupiter, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.jupiter && scene.jupiter.mesh) {
+          scene.jupiter.mesh.material.normalScale.set(this.params.jupiter.normalScale, this.params.jupiter.normalScale)
         }
       })
   }
