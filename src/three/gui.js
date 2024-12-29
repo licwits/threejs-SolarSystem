@@ -92,6 +92,12 @@ class SunGUI {
       jupiter: {
         rotationSpeed: 0.0001,
         normalScale: 0.1
+      },
+
+      // 添加土星参数
+      saturn: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
       }
     }
   }
@@ -227,6 +233,9 @@ class SunGUI {
         if (scene.jupiter) {
           scene.jupiter.updateOrbit(this.params.orbits.scale)
         }
+        if (scene.saturn) {
+          scene.saturn.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -340,6 +349,26 @@ class SunGUI {
       .onChange(() => {
         if (scene.jupiter && scene.jupiter.mesh) {
           scene.jupiter.mesh.material.normalScale.set(this.params.jupiter.normalScale, this.params.jupiter.normalScale)
+        }
+      })
+
+    // 添加土星控制
+    const saturnFolder = this.gui.addFolder('土星设置')
+    saturnFolder
+      .add(this.params.saturn, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.saturn) {
+          scene.saturn.rotationSpeed = this.params.saturn.rotationSpeed
+        }
+      })
+
+    saturnFolder
+      .add(this.params.saturn, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.saturn && scene.saturn.mesh) {
+          scene.saturn.mesh.material.normalScale.set(this.params.saturn.normalScale, this.params.saturn.normalScale)
         }
       })
   }
