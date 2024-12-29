@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import sunVertexShader from '@/shader/sun/vertex.glsl?raw'
 import sunFragmentShader from '@/shader/sun/fragment.glsl?raw'
+import haloVertexShader from '@/shader/halo/vertex.glsl?raw'
+import haloFragmentShader from '@/shader/halo/fragment.glsl?raw'
 import { gui } from '../gui'
 import { camera } from '../camera'
 
@@ -13,6 +15,7 @@ export class Sun {
     this.flareStates = [] // 存储每个耀斑的状态
     this.rotationSpeed = gui.params.rotationSpeed // 使用 GUI 中的初始值
     this.halo = null // 添加光晕对象
+    this.haloPlane = null // 添加平面光晕
   }
 
   async init() {
@@ -26,7 +29,6 @@ export class Sun {
       const material = new THREE.ShaderMaterial({
         uniforms: {
           sunTexture: { value: sunTexture },
-          coverTexture: { value: coverTexture },
           time: { value: 0 },
           flowSpeed: { value: gui.params.shader.flowSpeed },
           disturbanceScale: { value: gui.params.shader.disturbanceScale },
@@ -62,25 +64,48 @@ export class Sun {
       }
       this.mesh.add(ambientLight)
 
-      // 添加太阳耀斑
-      await this.addSunFlares()
-
       // 创建太阳光晕
-      const haloTexture = await this.textureLoader.loadAsync('/textures/th_sun/solar_halo.png')
-      const haloGeometry = new THREE.PlaneGeometry(1, 1) // 使用单位大小，通过缩放控制实际大小
-      const haloMaterial = new THREE.MeshBasicMaterial({
-        map: haloTexture,
+      const haloGeometry = new THREE.SphereGeometry(gui.params.sunSize * 1.2, 64, 64)
+      const haloMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          glowColor: { value: new THREE.Color(0xffaa00) },
+          intensity: { value: gui.params.halo.intensity },
+          power: { value: gui.params.halo.power },
+          time: { value: 0 },
+          coverTexture: { value: coverTexture }
+        },
+        vertexShader: haloVertexShader,
+        fragmentShader: haloFragmentShader,
         transparent: true,
-        opacity: gui.params.halo.opacity,
         blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
         depthWrite: false,
-        side: THREE.DoubleSide
+        depthTest: false
       })
 
       this.halo = new THREE.Mesh(haloGeometry, haloMaterial)
-      this.halo.renderOrder = -1 // 确保光晕在太阳后面渲染
-      this.updateHaloSize() // 初始化光晕大小
       this.mesh.add(this.halo)
+
+      // 创建平面光晕
+      const haloTexture = await this.textureLoader.loadAsync('/textures/th_sun/solar_halo.png')
+      const planeSize = gui.params.sunSize * 8 // 平面光晕大小
+      const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize)
+      const planeMaterial = new THREE.MeshBasicMaterial({
+        map: haloTexture,
+        transparent: true,
+        opacity: 0.3,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: false,
+        side: THREE.DoubleSide
+      })
+
+      this.haloPlane = new THREE.Mesh(planeGeometry, planeMaterial)
+      this.haloPlane.renderOrder = -1 // 确保在最底层渲染
+      this.mesh.add(this.haloPlane)
+
+      // 修改耀斑的创建方式
+      await this.addSunFlares()
 
       return this.mesh
     } catch (error) {
@@ -96,7 +121,9 @@ export class Sun {
         map: texture,
         transparent: true,
         blending: THREE.AdditiveBlending,
-        opacity: 0
+        opacity: 0,
+        depthWrite: false,
+        depthTest: false
       })
 
       const flare = new THREE.Sprite(material)
@@ -193,11 +220,18 @@ export class Sun {
         this.updateFlare(index, deltaTime)
       })
 
-      // 更新光晕朝向和属性
+      // 更新光晕
       if (this.halo) {
-        this.halo.lookAt(camera.camera.position)
-        this.updateHaloSize()
-        this.updateHaloOpacity()
+        this.halo.material.uniforms.time.value = this.time
+        this.halo.material.uniforms.intensity.value = gui.params.halo.intensity
+        this.halo.material.uniforms.power.value = gui.params.halo.power
+      }
+
+      // 更新平面光晕朝向
+      if (this.haloPlane) {
+        this.haloPlane.lookAt(camera.camera.position)
+        // 更新平面光晕透明度
+        this.haloPlane.material.opacity = gui.params.halo.planeOpacity
       }
     }
   }

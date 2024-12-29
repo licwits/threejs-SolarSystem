@@ -43,8 +43,10 @@ class SunGUI {
 
       // 光晕参数
       halo: {
-        size: 50, // 默认太阳大小的10倍
-        opacity: 0.6
+        intensity: 1.5,
+        power: 2.0,
+        color: '#ffaa00',
+        planeOpacity: 0.3
       },
 
       // 环境参数
@@ -105,23 +107,42 @@ class SunGUI {
     shaderFolder.addColor(this.params.shader, 'glowColor').name('发光颜色')
     shaderFolder.add(this.params.shader, 'brightnessVariation', 0, 0.5, 0.01).name('亮度变化')
 
-    // 添加光晕控制
+    // 修改光晕控制
     const haloFolder = this.gui.addFolder('光晕设置')
     haloFolder
-      .add(this.params.halo, 'size', 20, 100, 0.1)
-      .name('大小')
+      .add(this.params.halo, 'intensity', 0, 3, 0.1)
+      .name('强度')
       .onChange(() => {
-        if (scene.sun && scene.sun.updateHaloSize) {
-          scene.sun.updateHaloSize()
+        if (scene.sun && scene.sun.halo) {
+          scene.sun.halo.material.uniforms.intensity.value = this.params.halo.intensity
         }
       })
 
     haloFolder
-      .add(this.params.halo, 'opacity', 0, 1, 0.01)
-      .name('不透明度')
+      .add(this.params.halo, 'power', 0, 5, 0.1)
+      .name('衰减')
       .onChange(() => {
-        if (scene.sun && scene.sun.updateHaloOpacity) {
-          scene.sun.updateHaloOpacity()
+        if (scene.sun && scene.sun.halo) {
+          scene.sun.halo.material.uniforms.power.value = this.params.halo.power
+        }
+      })
+
+    haloFolder
+      .addColor(this.params.halo, 'color')
+      .name('颜色')
+      .onChange(() => {
+        if (scene.sun && scene.sun.halo) {
+          scene.sun.halo.material.uniforms.glowColor.value.set(this.params.halo.color)
+        }
+      })
+
+    // 添加平面光晕控制
+    haloFolder
+      .add(this.params.halo, 'planeOpacity', 0, 1, 0.01)
+      .name('平面光晕透明度')
+      .onChange(() => {
+        if (scene.sun && scene.sun.haloPlane) {
+          scene.sun.haloPlane.material.opacity = this.params.halo.planeOpacity
         }
       })
 
