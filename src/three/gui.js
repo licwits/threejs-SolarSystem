@@ -80,6 +80,12 @@ class SunGUI {
       venus: {
         rotationSpeed: 0.0001,
         normalScale: 0.1
+      },
+
+      // 添加火星参数
+      mars: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.1
       }
     }
   }
@@ -209,6 +215,9 @@ class SunGUI {
         if (scene.venus) {
           scene.venus.updateOrbit(this.params.orbits.scale)
         }
+        if (scene.mars) {
+          scene.mars.updateOrbit(this.params.orbits.scale)
+        }
       })
 
     orbitFolder
@@ -282,6 +291,26 @@ class SunGUI {
       .onChange(() => {
         if (scene.venus && scene.venus.mesh) {
           scene.venus.mesh.material.normalScale.set(this.params.venus.normalScale, this.params.venus.normalScale)
+        }
+      })
+
+    // 添加火星控制
+    const marsFolder = this.gui.addFolder('火星设置')
+    marsFolder
+      .add(this.params.mars, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.mars) {
+          scene.mars.rotationSpeed = this.params.mars.rotationSpeed
+        }
+      })
+
+    marsFolder
+      .add(this.params.mars, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.mars && scene.mars.mesh) {
+          scene.mars.mesh.material.normalScale.set(this.params.mars.normalScale, this.params.mars.normalScale)
         }
       })
   }
