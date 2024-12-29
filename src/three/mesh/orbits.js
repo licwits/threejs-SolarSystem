@@ -36,6 +36,8 @@ export class Orbits {
   }
 
   init() {
+    this.mesh = new THREE.Group()
+
     // 创建轨道
     this.orbitRadii.forEach((radius, index) => {
       // 根据轨道序号计算宽度和亮度
@@ -56,15 +58,42 @@ export class Orbits {
       orbit.rotation.x = Math.PI / 2
 
       this.orbits.push(orbit)
+      // 将轨道添加到 Group 中
+      this.mesh.add(orbit)
     })
 
-    // 创建轨道组
-    const orbitGroup = new THREE.Group()
-    this.orbits.forEach((orbit) => {
-      orbitGroup.add(orbit)
+    // 添加彗星轨道
+    const cometOrbitGeometry = new THREE.BufferGeometry()
+    const cometOrbitPoints = []
+
+    // 创建椭圆轨道
+    const a = this.scale * 8 // 长半轴
+    const e = 0.8 // 离心率
+    const b = a * Math.sqrt(1 - e * e) // 短半轴
+    const center = a * e // 焦点到中心的距离
+
+    for (let i = 0; i <= 360; i++) {
+      const angle = (i * Math.PI) / 180
+      const r = (a * (1 - e * e)) / (1 + e * Math.cos(angle))
+      const x = r * Math.cos(angle)
+      const z = r * Math.sin(angle)
+      cometOrbitPoints.push(new THREE.Vector3(x, 0, z))
+    }
+
+    cometOrbitGeometry.setFromPoints(cometOrbitPoints)
+
+    const cometOrbitMaterial = new THREE.LineBasicMaterial({
+      color: 0x666666,
+      transparent: true,
+      opacity: 0.8,
+      linewidth: 2
     })
 
-    return orbitGroup
+    const cometOrbit = new THREE.Line(cometOrbitGeometry, cometOrbitMaterial)
+    cometOrbit.position.x = -center // 移动轨道使太阳位于焦点
+    this.mesh.add(cometOrbit)
+
+    return this.mesh
   }
 
   // 更新轨道大小

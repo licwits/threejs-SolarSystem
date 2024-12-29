@@ -11,6 +11,7 @@ import { Uranus } from './mesh/uranus'
 import { Neptune } from './mesh/neptune'
 import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
+import { Comet } from './mesh/comet'
 
 class Scene {
   constructor() {
@@ -27,6 +28,7 @@ class Scene {
     this.uranus = new Uranus()
     this.neptune = new Neptune()
     this.sunLight = null
+    this.comet = new Comet()
   }
 
   async init() {
@@ -93,6 +95,10 @@ class Scene {
     const neptuneMesh = await this.neptune.init()
     this.scene.add(neptuneMesh)
 
+    // 添加彗星
+    const cometMesh = this.comet.init()
+    this.scene.add(cometMesh)
+
     return this.scene
   }
 
@@ -117,6 +123,7 @@ class Scene {
     this.uranus.animate()
     // 更新海王星动画
     this.neptune.animate()
+    this.comet.animate()
   }
 }
 
