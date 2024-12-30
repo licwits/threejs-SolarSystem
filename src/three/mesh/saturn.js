@@ -6,13 +6,14 @@ import ringFragmentShader from '@/shader/saturnRing/fragment.glsl?raw'
 export class Saturn {
   constructor() {
     this.mesh = null
+    this.ring = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.4745 // 原比例0.0949 * 5
+    this.radius = 0.5225 // 原比例0.1045 * 5
     this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.00024 // 公转速度（土星公转周期约10759天）
+    this.revolutionSpeed = 0.00022 // 公转速度（土星公转周期约10759天）
     this.revolutionAngle = Math.PI * 0.75 // 起始位置在135度
     this.orbitRadius = 0 // 存储轨道半径
-    this.ring = null // 土星环
+    this.eccentricity = 0.054 // 土星轨道偏心率
     this.axialTilt = Math.PI * 0.1485 // 26.73度转弧度
   }
 
@@ -116,9 +117,22 @@ export class Saturn {
 
   updateOrbitPosition() {
     if (this.mesh) {
-      // 更新土星位置
-      this.mesh.position.x = Math.cos(this.revolutionAngle) * this.orbitRadius
-      this.mesh.position.z = Math.sin(this.revolutionAngle) * this.orbitRadius
+      const inclination = 2.5
+      const inclinationRad = (inclination * Math.PI) / 180
+
+      // 计算椭圆轨道参数
+      const a = this.orbitRadius
+      const c = a * this.eccentricity
+      const b = Math.sqrt(a * a - c * c)
+
+      // 先计算在 x-z 平面上的位置
+      const x = a * Math.cos(this.revolutionAngle) - c
+      const z = b * Math.sin(this.revolutionAngle)
+
+      const rotatedY = -z * Math.sin(inclinationRad)
+      const rotatedZ = z * Math.cos(inclinationRad)
+
+      this.mesh.position.set(x, rotatedY, rotatedZ)
     }
   }
 

@@ -11,8 +11,6 @@ class Controls {
     this.controls = new OrbitControls(camera.camera, renderer.renderer.domElement)
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.05
-    this.controls.minDistance = 20
-    // this.controls.maxDistance = 100
   }
 
   update() {

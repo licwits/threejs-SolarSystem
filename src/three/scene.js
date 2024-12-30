@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
+import { camera } from './camera'
 import { Sun } from './mesh/sun'
 import { Orbits } from './mesh/orbits'
 import { Mercury } from './mesh/mercury'
@@ -11,9 +12,8 @@ import { Uranus } from './mesh/uranus'
 import { Neptune } from './mesh/neptune'
 import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
-import { Comet } from './mesh/comet'
 
-class Scene {
+export class Scene {
   constructor() {
     this.scene = new THREE.Scene()
     this.sun = new Sun()
@@ -28,7 +28,6 @@ class Scene {
     this.uranus = new Uranus()
     this.neptune = new Neptune()
     this.sunLight = null
-    this.comet = new Comet()
   }
 
   async init() {
@@ -95,10 +94,6 @@ class Scene {
     const neptuneMesh = await this.neptune.init()
     this.scene.add(neptuneMesh)
 
-    // 添加彗星
-    const cometMesh = this.comet.init()
-    this.scene.add(cometMesh)
-
     return this.scene
   }
 
@@ -123,7 +118,8 @@ class Scene {
     this.uranus.animate()
     // 更新海王星动画
     this.neptune.animate()
-    this.comet.animate()
+    // 更新轨道
+    this.orbits.updateWithCamera(camera.camera)
   }
 }
 

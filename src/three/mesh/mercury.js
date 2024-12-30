@@ -10,6 +10,7 @@ export class Mercury {
     this.revolutionSpeed = 0.0047 // 加快10倍
     this.revolutionAngle = 0 // 起始位置
     this.orbitRadius = 0 // 存储轨道半径
+    this.eccentricity = 0.206 // 水星轨道偏心率
   }
 
   async init() {
@@ -56,9 +57,23 @@ export class Mercury {
 
   updateOrbitPosition() {
     if (this.mesh) {
-      // 更新水星位置
-      this.mesh.position.x = Math.cos(this.revolutionAngle) * this.orbitRadius
-      this.mesh.position.z = Math.sin(this.revolutionAngle) * this.orbitRadius
+      const inclination = 7.0
+      const inclinationRad = (inclination * Math.PI) / 180
+
+      // 计算椭圆轨道参数
+      const a = this.orbitRadius // 半长轴
+      const c = a * this.eccentricity // 焦距
+      const b = Math.sqrt(a * a - c * c) // 半短轴
+
+      // 先计算在 x-z 平面上的位置
+      const x = a * Math.cos(this.revolutionAngle) - c
+      const z = b * Math.sin(this.revolutionAngle)
+
+      // 根据轨道倾角旋转位置
+      const rotatedY = -z * Math.sin(inclinationRad)
+      const rotatedZ = z * Math.cos(inclinationRad)
+
+      this.mesh.position.set(x, rotatedY, rotatedZ)
     }
   }
 

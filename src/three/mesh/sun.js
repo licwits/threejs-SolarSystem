@@ -51,8 +51,8 @@ export class Sun {
       sunLight.distance = gui.params.sunLight.distance
       sunLight.castShadow = true // 启用阴影投射
       // 设置阴影参数
-      sunLight.shadow.mapSize.width = 2048
-      sunLight.shadow.mapSize.height = 2048
+      sunLight.shadow.mapSize.width = 4096
+      sunLight.shadow.mapSize.height = 4096
       sunLight.shadow.camera.near = 0.1
       sunLight.shadow.camera.far = 1000
       sunLight.shadow.bias = -0.001 // 减少阴影失真

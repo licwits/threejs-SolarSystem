@@ -10,6 +10,7 @@ export class Neptune {
     this.revolutionSpeed = 0.000061
     this.revolutionAngle = Math.PI * 1.75 // 起始位置在315度
     this.orbitRadius = 0 // 存储轨道半径
+    this.eccentricity = 0.009 // 海王星轨道偏心率
   }
 
   async init() {
@@ -55,9 +56,22 @@ export class Neptune {
 
   updateOrbitPosition() {
     if (this.mesh) {
-      // 更新海王星位置
-      this.mesh.position.x = Math.cos(this.revolutionAngle) * this.orbitRadius
-      this.mesh.position.z = Math.sin(this.revolutionAngle) * this.orbitRadius
+      const inclination = 1.8
+      const inclinationRad = (inclination * Math.PI) / 180
+
+      // 计算椭圆轨道参数
+      const a = this.orbitRadius
+      const c = a * this.eccentricity
+      const b = Math.sqrt(a * a - c * c)
+
+      // 先计算在 x-z 平面上的位置
+      const x = a * Math.cos(this.revolutionAngle) - c
+      const z = b * Math.sin(this.revolutionAngle)
+
+      const rotatedY = -z * Math.sin(inclinationRad)
+      const rotatedZ = z * Math.cos(inclinationRad)
+
+      this.mesh.position.set(x, rotatedY, rotatedZ)
     }
   }
 

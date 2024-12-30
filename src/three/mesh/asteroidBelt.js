@@ -66,14 +66,27 @@ export class AsteroidBelt {
 
   animate() {
     if (this.mesh) {
-      // 更新每个小行星的位置和旋转
       this.asteroids.forEach((asteroid) => {
-        // 更新公转
-        asteroid.angle += asteroid.orbitSpeed
-        asteroid.mesh.position.x = Math.cos(asteroid.angle) * asteroid.radius * gui.params.orbits.scale
-        asteroid.mesh.position.z = Math.sin(asteroid.angle) * asteroid.radius * gui.params.orbits.scale
+        const inclination = 1.67
+        const inclinationRad = (inclination * Math.PI) / 180
+        const eccentricity = 0.1 * Math.random() // 随机偏心率，使小行星轨道更自然
 
-        // 更新自转
+        asteroid.angle += asteroid.orbitSpeed
+        const radius = asteroid.radius * gui.params.orbits.scale
+
+        // 计算椭圆轨道参数
+        const a = radius
+        const c = a * eccentricity
+        const b = Math.sqrt(a * a - c * c)
+
+        // 先计算在 x-z 平面上的位置
+        const x = a * Math.cos(asteroid.angle) - c
+        const z = b * Math.sin(asteroid.angle)
+
+        const rotatedY = -z * Math.sin(inclinationRad)
+        const rotatedZ = z * Math.cos(inclinationRad)
+
+        asteroid.mesh.position.set(x, rotatedY, rotatedZ)
         asteroid.mesh.rotation.y += asteroid.rotationSpeed
       })
     }
@@ -82,8 +95,17 @@ export class AsteroidBelt {
   updateScale(orbitScale) {
     if (this.mesh) {
       this.asteroids.forEach((asteroid) => {
-        asteroid.mesh.position.x = Math.cos(asteroid.angle) * asteroid.radius * orbitScale
-        asteroid.mesh.position.z = Math.sin(asteroid.angle) * asteroid.radius * orbitScale
+        const inclination = 1.67
+        const inclinationRad = (inclination * Math.PI) / 180
+        const radius = asteroid.radius * orbitScale
+
+        const x = Math.cos(asteroid.angle) * radius
+        const z = Math.sin(asteroid.angle) * radius
+
+        const rotatedY = -z * Math.sin(inclinationRad)
+        const rotatedZ = z * Math.cos(inclinationRad)
+
+        asteroid.mesh.position.set(x, rotatedY, rotatedZ)
       })
     }
   }
