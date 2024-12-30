@@ -60,7 +60,7 @@ class SunGUI {
       // 轨道参数
       orbits: {
         visible: true,
-        scale: 20,
+        scale: 70,
         opacity: 0.5
       },
 
@@ -114,6 +114,13 @@ class SunGUI {
       earth: {
         rotationSpeed: 0.0001,
         normalScale: 0.1
+      },
+
+      // 添加月球参数
+      moon: {
+        rotationSpeed: 0.0001,
+        normalScale: 0.5,
+        orbitRadius: 1.5
       }
     }
   }
@@ -231,7 +238,7 @@ class SunGUI {
       })
 
     orbitFolder
-      .add(this.params.orbits, 'scale', 10, 50, 1)
+      .add(this.params.orbits, 'scale', 10, 120, 1)
       .name('轨道缩放')
       .onChange(() => {
         if (scene.orbits) {
@@ -436,6 +443,35 @@ class SunGUI {
       .onChange(() => {
         if (scene.earth && scene.earth.mesh) {
           scene.earth.mesh.material.normalScale.set(this.params.earth.normalScale, this.params.earth.normalScale)
+        }
+      })
+
+    // 添加月球控制
+    const moonFolder = this.gui.addFolder('月球设置')
+    moonFolder
+      .add(this.params.moon, 'rotationSpeed', 0, 0.001, 0.0001)
+      .name('自转速度')
+      .onChange(() => {
+        if (scene.moon) {
+          scene.moon.rotationSpeed = this.params.moon.rotationSpeed
+        }
+      })
+
+    moonFolder
+      .add(this.params.moon, 'normalScale', 0, 2, 0.1)
+      .name('法线强度')
+      .onChange(() => {
+        if (scene.moon && scene.moon.mesh) {
+          scene.moon.mesh.material.normalScale.set(this.params.moon.normalScale, this.params.moon.normalScale)
+        }
+      })
+
+    moonFolder
+      .add(this.params.moon, 'orbitRadius', 0.5, 2, 0.1)
+      .name('轨道半径')
+      .onChange(() => {
+        if (scene.moon) {
+          scene.moon.orbitRadius = this.params.moon.orbitRadius
         }
       })
   }

@@ -5,7 +5,7 @@ export class Venus {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.4745 // 原比例0.0949 * 5
+    this.radius = 0.475 // 金星半径是地球的0.95倍
     this.rotationSpeed = 0.001 // 自转速度
     this.revolutionSpeed = 0.0035 // 公转速度（金星公转周期约225天）
     this.revolutionAngle = Math.PI * 0.5 // 起始位置在90度

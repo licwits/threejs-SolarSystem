@@ -5,7 +5,7 @@ export class Neptune {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.19415 // 原比例0.03883 * 5
+    this.radius = 1.94 // 海王星半径是地球的3.88倍
     this.rotationSpeed = 0.001
     this.revolutionSpeed = 0.000061
     this.revolutionAngle = Math.PI * 1.75 // 起始位置在315度

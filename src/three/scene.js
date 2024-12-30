@@ -12,6 +12,7 @@ import { Uranus } from './mesh/uranus'
 import { Neptune } from './mesh/neptune'
 import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
+import { Moon } from './mesh/moon'
 
 export class Scene {
   constructor() {
@@ -28,6 +29,7 @@ export class Scene {
     this.uranus = new Uranus()
     this.neptune = new Neptune()
     this.sunLight = null
+    this.moon = new Moon()
   }
 
   async init() {
@@ -68,7 +70,15 @@ export class Scene {
 
     // 添加地球
     const earthMesh = await this.earth.init()
-    this.scene.add(earthMesh)
+    if (earthMesh) {
+      this.scene.add(earthMesh)
+    }
+
+    // 添加月球
+    const moonMesh = await this.moon.init()
+    if (moonMesh) {
+      this.scene.add(moonMesh) // 直接添加到场景中
+    }
 
     // 添加火星
     const marsMesh = await this.mars.init()
@@ -105,7 +115,9 @@ export class Scene {
     // 更新金星动画
     this.venus.animate()
     // 更新地球动画
-    this.earth.animate()
+    if (this.earth) {
+      this.earth.animate()
+    }
     // 更新火星动画
     this.mars.animate()
     // 更新小行星带
@@ -120,6 +132,10 @@ export class Scene {
     this.neptune.animate()
     // 更新轨道
     this.orbits.updateWithCamera(camera.camera)
+    // 更新月球动画
+    if (this.moon) {
+      this.moon.animate(this.earth)
+    }
   }
 }
 

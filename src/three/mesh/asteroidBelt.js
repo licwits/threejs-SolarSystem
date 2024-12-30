@@ -5,11 +5,15 @@ export class AsteroidBelt {
   constructor() {
     this.mesh = null
     this.asteroids = []
-    this.count = 4000 // 小行星数量
+    this.count = 20000 // 小行星数量
     this.minRadius = 2.2 // 内圈半径（火星轨道外）
     this.maxRadius = 3.4 // 外圈半径（木星轨道内）
-    this.minSize = 0.02
-    this.maxSize = 0.1
+    this.minSize = 0.05
+    this.maxSize = 0.2
+    this.minOrbitSpeed = 0.00000001 // 降低最小公转速度
+    this.maxOrbitSpeed = 0.00000002 // 降低最大公转速度
+    this.minRotationSpeed = 0.0000001 // 降低最小自转速度
+    this.maxRotationSpeed = 0.0000005 // 降低最大自转速度
   }
 
   init() {
@@ -56,8 +60,8 @@ export class AsteroidBelt {
         mesh: asteroid,
         radius,
         angle,
-        rotationSpeed: 0.001 + Math.random() * 0.002,
-        orbitSpeed: 0.0001 + Math.random() * 0.0002
+        rotationSpeed: this.minRotationSpeed + Math.random() * (this.maxRotationSpeed - this.minRotationSpeed),
+        orbitSpeed: this.minOrbitSpeed + Math.random() * (this.maxOrbitSpeed - this.minOrbitSpeed)
       })
     }
 

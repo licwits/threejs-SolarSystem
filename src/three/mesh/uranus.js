@@ -5,7 +5,7 @@ export class Uranus {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.20035 // 原比例0.04007 * 5
+    this.radius = 2.02 // 天王星半径是地球的4.04倍
     this.rotationSpeed = 0.001
     this.revolutionSpeed = 0.00012
     this.revolutionAngle = Math.PI * 1.25 // 起始位置在225度

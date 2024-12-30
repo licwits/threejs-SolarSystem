@@ -8,7 +8,7 @@ export class Saturn {
     this.mesh = null
     this.ring = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.5225 // 原比例0.1045 * 5
+    this.radius = 4.73 // 土星半径是地球的9.46倍
     this.rotationSpeed = 0.001 // 自转速度
     this.revolutionSpeed = 0.00022 // 公转速度（土星公转周期约10759天）
     this.revolutionAngle = Math.PI * 0.75 // 起始位置在135度
@@ -41,47 +41,21 @@ export class Saturn {
       this.mesh.rotation.z = this.axialTilt
 
       // 创建土星环
-      const ringGeometry = new THREE.RingGeometry(gui.params.sunSize * this.radius * 1.4, gui.params.sunSize * this.radius * 2.2, 128, 8)
+      const ringGeometry = new THREE.RingGeometry(gui.params.sunSize * this.radius * 1.2, gui.params.sunSize * this.radius * 2.5, 256, 8)
 
       // 使用自定义着色器材质
       const ringMaterial = new THREE.ShaderMaterial({
         uniforms: {
           ringTexture: { value: ringTexture },
-          innerRadius: { value: 3.0 },
-          outerRadius: { value: 5.0 }
-          // opacity: { value: 1.0 },
-          // color: { value: new THREE.Color(0xc2956e) },
-          // sunPosition: { value: new THREE.Vector3(0, 0, 0) },
-          // time: { value: 0 }
+          innerRadius: { value: gui.params.sunSize * this.radius * 1.2 },
+          outerRadius: { value: gui.params.sunSize * this.radius * 2.5 }
         },
         vertexShader: ringVertexShader,
         fragmentShader: ringFragmentShader,
         side: THREE.DoubleSide,
         transparent: true,
         depthWrite: false
-        // blending: THREE.CustomBlending,
-        // blendSrc: THREE.SrcAlphaFactor,
-        // blendDst: THREE.OneMinusSrcAlphaFactor
       })
-
-      // 修改 UV 映射方式
-      // const pos = ringGeometry.attributes.position
-      // const uv = ringGeometry.attributes.uv
-
-      // for (let i = 0; i < uv.count; i++) {
-      //   const vertex = new THREE.Vector3()
-      //   vertex.fromBufferAttribute(pos, i)
-
-      //   // 计算角度（0-1范围）
-      //   const angle = (Math.atan2(vertex.z, vertex.x) + Math.PI) / (Math.PI * 2)
-
-      //   // 计算到中心的距离并归一化（0-1范围）
-      //   const radius = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z)
-      //   const normalizedRadius = (radius - gui.params.sunSize * this.radius * 1.4) / (gui.params.sunSize * this.radius * 0.8)
-
-      //   // 对于横条状贴图，我们使用角度作为 v 坐标，半径作为 u 坐标
-      //   uv.setXY(i, normalizedRadius, angle)
-      // }
 
       this.ring = new THREE.Mesh(ringGeometry, ringMaterial)
       this.ring.rotation.x = Math.PI / 2
@@ -106,12 +80,6 @@ export class Saturn {
       // 公转
       this.revolutionAngle += this.revolutionSpeed
       this.updateOrbitPosition()
-
-      // 更新环的时间和太阳位置
-      if (this.ring) {
-        // this.ring.material.uniforms.time.value += 0.01
-        // this.ring.material.uniforms.sunPosition.value.set(0, 0, 0)
-      }
     }
   }
 
@@ -141,29 +109,29 @@ export class Saturn {
       const newScale = sunSize * this.radius
       this.mesh.scale.set(newScale, newScale, newScale)
 
-      // 更新土星环大小
-      if (this.ring) {
-        this.ring.geometry.dispose()
-        const ringGeometry = new THREE.RingGeometry(sunSize * this.radius * 1.4, sunSize * this.radius * 2.2, 128, 8)
+      // // 更新土星环大小
+      // if (this.ring) {
+      //   this.ring.geometry.dispose()
+      //   const ringGeometry = new THREE.RingGeometry(sunSize * this.radius * 1.2, sunSize * this.radius * 2.5, 256, 8)
 
-        // 更新 UV
-        const pos = ringGeometry.attributes.position
-        const uv = ringGeometry.attributes.uv
+      //   // 更新 UV
+      //   const pos = ringGeometry.attributes.position
+      //   const uv = ringGeometry.attributes.uv
 
-        for (let i = 0; i < uv.count; i++) {
-          const vertex = new THREE.Vector3()
-          vertex.fromBufferAttribute(pos, i)
+      //   for (let i = 0; i < uv.count; i++) {
+      //     const vertex = new THREE.Vector3()
+      //     vertex.fromBufferAttribute(pos, i)
 
-          const angle = (Math.atan2(vertex.z, vertex.x) + Math.PI) / (Math.PI * 2)
-          const radius = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z)
-          const normalizedRadius = (radius - sunSize * this.radius * 1.4) / (sunSize * this.radius * 0.8)
+      //     const angle = (Math.atan2(vertex.z, vertex.x) + Math.PI) / (Math.PI * 2)
+      //     const radius = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z)
+      //     const normalizedRadius = (radius - sunSize * this.radius * 1.2) / (sunSize * this.radius * 1.3)
 
-          // 交换 UV 坐标
-          uv.setXY(i, normalizedRadius, angle)
-        }
+      //     // 交换 UV 坐标
+      //     uv.setXY(i, normalizedRadius, angle)
+      //   }
 
-        this.ring.geometry = ringGeometry
-      }
+      //   this.ring.geometry = ringGeometry
+      // }
     }
   }
 

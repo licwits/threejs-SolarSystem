@@ -60,7 +60,7 @@ export class Orbits {
       }
     ]
 
-    this.scale = 20 // 轨道缩放系数
+    this.scale = 70 // 轨道缩放系数
     // 定义每个轨道的颜色
     this.orbitColors = [
       0xcccccc, // 水星 - 银灰色

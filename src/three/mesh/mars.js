@@ -5,7 +5,7 @@ export class Mars {
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
-    this.radius = 0.266 // 原比例0.0532 * 5
+    this.radius = 0.266 // 火星半径是地球的0.532倍
     this.rotationSpeed = 0.001 // 自转速度
     this.revolutionSpeed = 0.0024 // 公转速度（火星公转周期约687天）
     this.revolutionAngle = Math.PI * 1.5 // 起始位置在270度
