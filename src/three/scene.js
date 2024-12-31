@@ -13,6 +13,7 @@ import { Neptune } from './mesh/neptune'
 import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
 import { Moon } from './mesh/moon'
+import { StarLinks } from './mesh/starLinks'
 
 export class Scene {
   constructor() {
@@ -30,9 +31,10 @@ export class Scene {
     this.neptune = new Neptune()
     this.sunLight = null
     this.moon = new Moon()
+    this.starLinks = new StarLinks()
   }
 
-  async init() {
+  async init(bloomLayer) {
     // 加载 HDR 环境贴图
     const rgbeLoader = new RGBELoader()
     const envMap = await rgbeLoader.loadAsync('/textures/hdr/Starfield.hdr')
@@ -48,12 +50,14 @@ export class Scene {
 
     // 初始化并添加太阳
     const sunMesh = await this.sun.init()
+    sunMesh.layers.set(0)
     this.scene.add(sunMesh)
 
     // 创建太阳点光源
     this.sunLight = new THREE.PointLight(0xffffff, 5, 0, 0)
     this.sunLight.castShadow = true
     this.sunLight.position.set(0, 0, 0)
+    this.sunLight.layers.enableAll()
     this.scene.add(this.sunLight)
 
     // 添加轨道
@@ -104,6 +108,10 @@ export class Scene {
     const neptuneMesh = await this.neptune.init()
     this.scene.add(neptuneMesh)
 
+    // 添加星链
+    const starLinksMesh = this.starLinks.init(bloomLayer)
+    this.scene.add(starLinksMesh)
+
     return this.scene
   }
 
@@ -136,6 +144,8 @@ export class Scene {
     if (this.moon) {
       this.moon.animate(this.earth)
     }
+    // 更新星链
+    this.starLinks.animate(0.016) // 假设60fps，每帧约16ms
   }
 }
 

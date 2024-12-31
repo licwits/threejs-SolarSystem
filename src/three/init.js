@@ -5,6 +5,7 @@ import { controls } from './controls'
 import { animate } from './animate'
 import { axesHelper } from './axesHelper'
 import { gui } from './gui'
+import { composer } from './composer'
 
 export async function init(container) {
   // 添加渲染器到容器
@@ -16,6 +17,9 @@ export async function init(container) {
   // 初始化场景
   await scene.init()
 
+  // 初始化后处理
+  composer.init(scene.scene, camera.camera, renderer.renderer)
+
   // 添加坐标轴辅助
   axesHelper.init(scene.scene)
 
@@ -23,6 +27,15 @@ export async function init(container) {
   window.addEventListener('resize', () => {
     camera.resize()
     renderer.resize()
+    // 更新所有星链的线条分辨率
+    if (scene.starLinks) {
+      scene.starLinks.links.forEach((link) => {
+        if (link.line && link.line.material && link.line.material.uniforms) {
+          link.line.material.uniforms.resolution.value.set(window.innerWidth, window.innerHeight)
+        }
+      })
+    }
+    composer.bloomComposer.setSize(window.innerWidth, window.innerHeight)
   })
 
   // 开始动画循环

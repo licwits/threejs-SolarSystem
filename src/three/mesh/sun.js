@@ -89,7 +89,7 @@ export class Sun {
         transparent: true,
         blending: THREE.AdditiveBlending,
         side: THREE.BackSide,
-        depthWrite: true,
+        depthWrite: false,
         depthTest: true
       })
 

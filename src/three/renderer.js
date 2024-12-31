@@ -10,8 +10,8 @@ class Renderer {
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance' // 优先使用高性能GPU
+      // alpha: true,
+      // powerPreference: 'high-performance' // 优先使用高性能GPU
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.renderer.setPixelRatio(window.devicePixelRatio)
