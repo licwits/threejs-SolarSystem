@@ -27,6 +27,7 @@ export async function init(container) {
   window.addEventListener('resize', () => {
     camera.resize()
     renderer.resize()
+    scene.labelSystem.resize()
     // 更新所有星链的线条分辨率
     if (scene.starLinks) {
       scene.starLinks.links.forEach((link) => {

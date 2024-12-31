@@ -14,6 +14,7 @@ import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
 import { Moon } from './mesh/moon'
 import { StarLinks } from './mesh/starLinks'
+import { LabelSystem } from './mesh/labelSystem'
 
 export class Scene {
   constructor() {
@@ -32,6 +33,7 @@ export class Scene {
     this.sunLight = null
     this.moon = new Moon()
     this.starLinks = new StarLinks()
+    this.labelSystem = new LabelSystem()
   }
 
   async init(bloomLayer) {
@@ -48,8 +50,13 @@ export class Scene {
     this.scene.backgroundIntensity = 0.5
     this.scene.environmentIntensity = 0.5
 
-    // 初始化并添加太阳
+    // 初始化标签系统
+    this.labelSystem.init(camera.camera, this.scene)
+
+    // 初始化太阳
     const sunMesh = await this.sun.init()
+    sunMesh.userData.planetName = '太阳'
+    this.labelSystem.addToScene(this.scene, sunMesh, '太阳')
     sunMesh.layers.set(0)
     this.scene.add(sunMesh)
 
@@ -64,52 +71,74 @@ export class Scene {
     const orbitGroup = this.orbits.init()
     this.scene.add(orbitGroup)
 
-    // 添加水星
+    // 初始化水星
     const mercuryMesh = await this.mercury.init()
+    mercuryMesh.userData.planetName = '水星'
+    this.labelSystem.addToScene(this.scene, mercuryMesh, '水星')
     this.scene.add(mercuryMesh)
 
     // 添加金星
     const venusMesh = await this.venus.init()
+    venusMesh.userData.planetName = '金星'
+    this.labelSystem.addToScene(this.scene, venusMesh, '金星')
     this.scene.add(venusMesh)
 
     // 添加地球
     const earthMesh = await this.earth.init()
     if (earthMesh) {
+      earthMesh.userData.planetName = '地球'
+      this.labelSystem.addToScene(this.scene, earthMesh, '地球')
       this.scene.add(earthMesh)
     }
 
     // 添加月球
     const moonMesh = await this.moon.init()
     if (moonMesh) {
+      moonMesh.userData.planetName = '月球'
+      this.labelSystem.addToScene(this.scene, moonMesh, '月球')
       this.scene.add(moonMesh) // 直接添加到场景中
     }
 
     // 添加火星
     const marsMesh = await this.mars.init()
+    marsMesh.userData.planetName = '火星'
+    this.labelSystem.addToScene(this.scene, marsMesh, '火星')
     this.scene.add(marsMesh)
 
     // 添加小行星带
     const asteroidBeltMesh = this.asteroidBelt.init()
+    asteroidBeltMesh.userData.planetName = '小行星带'
+    this.labelSystem.addToScene(this.scene, asteroidBeltMesh, '小行星带')
     this.scene.add(asteroidBeltMesh)
 
     // 添加木星
     const jupiterMesh = await this.jupiter.init()
+    jupiterMesh.userData.planetName = '木星'
+    this.labelSystem.addToScene(this.scene, jupiterMesh, '木星')
     this.scene.add(jupiterMesh)
 
     // 添加土星
     const saturnMesh = await this.saturn.init()
+    saturnMesh.userData.planetName = '土星'
+    this.labelSystem.addToScene(this.scene, saturnMesh, '土星')
     this.scene.add(saturnMesh)
 
     // 添加天王星
     const uranusMesh = await this.uranus.init()
+    uranusMesh.userData.planetName = '天王星'
+    this.labelSystem.addToScene(this.scene, uranusMesh, '天王星')
     this.scene.add(uranusMesh)
 
     // 添加海王星
     const neptuneMesh = await this.neptune.init()
+    neptuneMesh.userData.planetName = '海王星'
+    this.labelSystem.addToScene(this.scene, neptuneMesh, '海王星')
     this.scene.add(neptuneMesh)
 
     // 添加星链
     const starLinksMesh = this.starLinks.init(bloomLayer)
+    starLinksMesh.userData.planetName = '星链'
+    this.labelSystem.addToScene(this.scene, starLinksMesh, '星链')
     this.scene.add(starLinksMesh)
 
     return this.scene
@@ -146,6 +175,7 @@ export class Scene {
     }
     // 更新星链
     this.starLinks.animate(0.016) // 假设60fps，每帧约16ms
+    this.labelSystem.update()
   }
 }
 
