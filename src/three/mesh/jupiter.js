@@ -2,12 +2,15 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Jupiter {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.00038
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 5.59 // 木星半径是地球的11.18倍
-    this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.00038 // 公转速度（木星公转周期约4333天）
+    this.rotationSpeed = Jupiter.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Jupiter.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 0.25 // 起始位置在45度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.048 // 木星轨道偏心率

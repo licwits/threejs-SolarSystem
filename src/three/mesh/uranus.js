@@ -2,16 +2,20 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Uranus {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.00014
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 2.02 // 天王星半径是地球的4.04倍
-    this.rotationSpeed = 0.001
-    this.revolutionSpeed = 0.00012
+    this.rotationSpeed = Uranus.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Uranus.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 1.25 // 起始位置在225度
     this.orbitRadius = 0 // 存储轨道半径
     this.ring = null // 天王星环
     this.eccentricity = 0.047 // 天王星轨道偏心率
+    this.axialTilt = Math.PI * 0.5415 // 97.47度转弧度
   }
 
   async init() {

@@ -4,13 +4,16 @@ import ringVertexShader from '@/shader/saturnRing/vertex.glsl?raw'
 import ringFragmentShader from '@/shader/saturnRing/fragment.glsl?raw'
 
 export class Saturn {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.00028
+
   constructor() {
     this.mesh = null
     this.ring = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 4.73 // 土星半径是地球的9.46倍
-    this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.00022 // 公转速度（土星公转周期约10759天）
+    this.rotationSpeed = Saturn.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Saturn.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 0.75 // 起始位置在135度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.054 // 土星轨道偏心率

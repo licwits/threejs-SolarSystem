@@ -2,13 +2,16 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Earth {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.0017
+
   constructor() {
     this.mesh = null
     this.clouds = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 0.5 // 基准尺寸
-    this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.0017 // 公转速度（地球公转周期365天）
+    this.rotationSpeed = Earth.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Earth.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI // 起始位置在180度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.017 // 地球轨道偏心率

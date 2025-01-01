@@ -2,12 +2,15 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Mercury {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.0047
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 0.191 // 水星半径是地球的0.382倍
-    this.rotationSpeed = 0.001 // 加快10倍
-    this.revolutionSpeed = 0.0047 // 加快10倍
+    this.rotationSpeed = Mercury.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Mercury.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = 0 // 起始位置
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.206 // 水星轨道偏心率

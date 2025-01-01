@@ -2,12 +2,15 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Mars {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.0024
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 0.266 // 火星半径是地球的0.532倍
-    this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.0024 // 公转速度（火星公转周期约687天）
+    this.rotationSpeed = Mars.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Mars.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 1.5 // 起始位置在270度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.093 // 火星轨道偏心率

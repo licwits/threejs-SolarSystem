@@ -7,14 +7,22 @@ import { gui } from '../gui'
 import { camera } from '../camera'
 
 export class Sun {
+  static DEFAULT_ROTATION_SPEED = 0.001
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.flares = []
     this.time = 0
     this.flareStates = [] // 存储每个耀斑的状态
-    this.rotationSpeed = gui.params.rotationSpeed // 使用 GUI 中的初始值
-    this.halo = null // 添加光晕对象
+    this.rotationSpeed = Sun.DEFAULT_ROTATION_SPEED
+    this.halo = null
+    // 耀斑参数
+    this.flareParams = {
+      frequency: 0.0002, // 出现频率
+      duration: [2, 4], // 持续时间范围
+      size: [1, 2], // 大小范围
+      opacity: 0.4 // 最大透明度
+    }
   }
 
   async init() {
@@ -88,8 +96,8 @@ export class Sun {
       this.halo = new THREE.Mesh(haloGeometry, haloMaterial)
       this.mesh.add(this.halo)
 
-      // 修改耀斑的创建方式
-      // await this.addSunFlares()
+      // 添加耀斑
+      await this.addSunFlares()
 
       return this.mesh
     } catch (error) {
@@ -98,14 +106,94 @@ export class Sun {
     }
   }
 
+  async addSunFlares() {
+    const flareTextures = await Promise.all([this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare1.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare2.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare3.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare4.png'), this.textureLoader.loadAsync('/textures/th_sun/medres/th_sunflare5.png')])
+
+    flareTextures.forEach((texture, index) => {
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        opacity: 0,
+        depthWrite: false,
+        depthTest: false
+      })
+
+      const flare = new THREE.Sprite(material)
+      const scale = this.flareParams.size[0] + Math.random() * (this.flareParams.size[1] - this.flareParams.size[0])
+      flare.scale.set(scale, scale, 1)
+
+      // 初始位置设置在太阳表面
+      const angle = (index / flareTextures.length) * Math.PI * 2
+      const radius = 5 // 使用固定的太阳大小
+      flare.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
+
+      this.flares.push(flare)
+      this.flareStates.push({
+        active: false,
+        duration: 0,
+        fadeIn: false,
+        fadeOut: false,
+        baseAngle: angle
+      })
+      this.mesh.add(flare)
+    })
+  }
+
+  updateFlare(index, deltaTime) {
+    const flare = this.flares[index]
+    const state = this.flareStates[index]
+
+    if (!state.active) {
+      if (Math.random() < this.flareParams.frequency) {
+        state.active = true
+        state.duration = this.flareParams.duration[0] + Math.random() * (this.flareParams.duration[1] - this.flareParams.duration[0])
+        state.fadeIn = true
+        state.fadeOut = false
+      }
+    }
+
+    if (state.active) {
+      // 淡入淡出效果
+      if (state.fadeIn) {
+        flare.material.opacity += deltaTime
+        if (flare.material.opacity >= this.flareParams.opacity) {
+          flare.material.opacity = this.flareParams.opacity
+          state.fadeIn = false
+        }
+      }
+
+      // 更新持续时间和淡出状态
+      state.duration -= deltaTime
+      if (state.duration <= 0.8 && !state.fadeOut) {
+        state.fadeOut = true
+      }
+
+      if (state.fadeOut) {
+        flare.material.opacity -= deltaTime * 0.5
+        if (flare.material.opacity <= 0) {
+          flare.material.opacity = 0
+          state.active = false
+          state.fadeOut = false
+        }
+      }
+    }
+  }
+
   animate() {
     if (this.mesh) {
       // 更新着色器时间
-      this.time += 0.05 // 使用固定的流动速度
+      this.time += 0.05
       this.mesh.material.uniforms.time.value = this.time
 
       // 太阳自转
       this.mesh.rotation.y += this.rotationSpeed
+
+      // 更新耀斑
+      const deltaTime = 0.016
+      this.flares.forEach((_, index) => {
+        this.updateFlare(index, deltaTime)
+      })
 
       // 更新光晕
       if (this.halo) {

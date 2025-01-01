@@ -2,12 +2,15 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Venus {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.0035
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 0.475 // 金星半径是地球的0.95倍
-    this.rotationSpeed = 0.001 // 自转速度
-    this.revolutionSpeed = 0.0035 // 公转速度（金星公转周期约225天）
+    this.rotationSpeed = Venus.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Venus.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 0.5 // 起始位置在90度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.007 // 金星轨道偏心率

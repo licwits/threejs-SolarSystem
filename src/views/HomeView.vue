@@ -4,12 +4,14 @@
       ref="container"
       class="three-container"
     ></div>
+    <TimeController />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { init } from '@/three/init'
+import TimeController from '@/components/TimeController.vue'
 
 const container = ref(null)
 

@@ -2,15 +2,19 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Neptune {
+  static DEFAULT_ROTATION_SPEED = 0.001
+  static DEFAULT_REVOLUTION_SPEED = 0.00007
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 1.94 // 海王星半径是地球的3.88倍
-    this.rotationSpeed = 0.001
-    this.revolutionSpeed = 0.000061
+    this.rotationSpeed = Neptune.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Neptune.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = Math.PI * 1.75 // 起始位置在315度
     this.orbitRadius = 0 // 存储轨道半径
     this.eccentricity = 0.009 // 海王星轨道偏心率
+    this.axialTilt = Math.PI * 0.1551 // 28.32度转弧度
   }
 
   async init() {

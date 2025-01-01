@@ -2,12 +2,15 @@ import * as THREE from 'three'
 import { gui } from '../gui'
 
 export class Moon {
+  static DEFAULT_ROTATION_SPEED = 0.0001
+  static DEFAULT_REVOLUTION_SPEED = 0.005
+
   constructor() {
     this.mesh = null
     this.textureLoader = new THREE.TextureLoader()
     this.radius = 0.136 // 月球半径是地球的0.272倍
-    this.rotationSpeed = 0.0001 // 自转速度
-    this.revolutionSpeed = 0.005 // 降低公转速度使运动更容易观察
+    this.rotationSpeed = Moon.DEFAULT_ROTATION_SPEED
+    this.revolutionSpeed = Moon.DEFAULT_REVOLUTION_SPEED
     this.revolutionAngle = 0 // 起始角度
     this.orbitRadius = 5.0 // 月球轨道半径（约30个地球半径，这里缩小以便观察）
     this.eccentricity = 0.0549 // 月球轨道偏心率
