@@ -54,19 +54,19 @@ export class Scene {
       onProgress(loadedItems / totalItems)
     }
 
-    // 加载 HDR 环境贴图
-    const rgbeLoader = new RGBELoader()
-    const envMap = await rgbeLoader.loadAsync('/textures/hdr/Starfield.hdr')
+    // 加载 JPG 环境贴图
+    const textureLoader = new THREE.TextureLoader()
+    const envMap = await textureLoader.loadAsync('/textures/hdr/Starfield.jpg')
+    envMap.mapping = THREE.EquirectangularReflectionMapping
+    envMap.encoding = THREE.sRGBEncoding
     updateProgress()
 
-    // 设置环境贴图
-    envMap.mapping = THREE.EquirectangularReflectionMapping
     this.scene.environment = envMap
     this.scene.background = envMap
 
     // 调整环境贴图的强度
-    this.scene.backgroundIntensity = 0.5
-    this.scene.environmentIntensity = 0.5
+    this.scene.backgroundIntensity = 0.2
+    this.scene.environmentIntensity = 0.2
 
     // 初始化标签系统
     this.labelSystem.init(camera.camera, this.scene, controls.controls)
