@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 import { camera } from './camera'
+import { controls } from './controls'
 import { Sun } from './mesh/sun'
 import { Orbits } from './mesh/orbits'
 import { Mercury } from './mesh/mercury'
@@ -14,7 +15,7 @@ import { Earth } from './mesh/earth'
 import { AsteroidBelt } from './mesh/asteroidBelt'
 import { Moon } from './mesh/moon'
 import { StarLinks } from './mesh/starLinks'
-import { LabelSystem } from './mesh/labelSystem'
+import { LabelSystem } from './labelSystem'
 
 export class Scene {
   constructor() {
@@ -51,7 +52,7 @@ export class Scene {
     this.scene.environmentIntensity = 0.5
 
     // 初始化标签系统
-    this.labelSystem.init(camera.camera, this.scene)
+    this.labelSystem.init(camera.camera, this.scene, controls.controls)
 
     // 初始化太阳
     const sunMesh = await this.sun.init()

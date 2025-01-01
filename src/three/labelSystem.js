@@ -10,6 +10,29 @@ export class LabelSystem {
     this.currentHighlight = null
     this.camera = null
     this.scene = null
+    this.controls = null
+    this.isLocked = false
+    this.targetPlanet = null
+    this.isTransitioning = false // 添加过渡状态标记
+
+    // 创建提示框
+    this.escapeHint = document.createElement('div')
+    this.escapeHint.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 16px;
+      display: none;
+      z-index: 1000;
+    `
+    this.escapeHint.textContent = '按ESC键退出锁定视角'
+    document.body.appendChild(this.escapeHint)
 
     // 创建CSS2D渲染器
     this.labelRenderer = new CSS2DRenderer()
@@ -51,11 +74,15 @@ export class LabelSystem {
 
   getPlanetName(object) {
     // 根据对象或其父对象找到行星名称
-    const planetNames = ['太阳', '水星', '金星', '地球', '火星', '木星', '土星', '天王星', '海王星']
+    const planetNames = ['太阳', '水星', '金星', '地球', '火星', '木星', '土星', '天王星', '海王星', '月球']
     let current = object
 
     while (current) {
       if (current.userData && current.userData.planetName) {
+        // 排除星链
+        if (current.userData.planetName === '星链' || current.userData.planetName === '小行星带') {
+          return null
+        }
         return current.userData.planetName
       }
       current = current.parent
@@ -63,11 +90,14 @@ export class LabelSystem {
     return null
   }
 
-  init(camera, scene) {
+  init(camera, scene, controls) {
     this.camera = camera
     this.scene = scene
+    this.controls = controls
 
     window.addEventListener('mousemove', this.onMouseMove.bind(this))
+    window.addEventListener('click', this.onClick.bind(this))
+    window.addEventListener('keydown', this.onKeyDown.bind(this))
 
     const labelData = [
       { name: '太阳', color: '#ffaa00' },
@@ -130,7 +160,7 @@ export class LabelSystem {
       火星: 1.1,
       木星: 0.6,
       土星: 0.6,
-      天王星: -1.1,
+      天王星: -0.5,
       海王星: 1.1
     }
 
@@ -188,6 +218,38 @@ export class LabelSystem {
   update() {
     if (!this.camera) return
 
+    // 如果视角被锁定，更新相机位置以跟随行星
+    if (this.isLocked && this.targetPlanet && !this.isTransitioning) {
+      const planetPosition = new THREE.Vector3()
+      this.targetPlanet.getWorldPosition(planetPosition)
+
+      // 保持相机相对于行星的相对位置
+      const cameraOffset = new THREE.Vector3()
+      cameraOffset.subVectors(this.camera.position, this.controls.target)
+
+      // 更新控制器目标点到行星位置
+      this.controls.target.copy(planetPosition)
+
+      // 更新相机位置，保持相对位置不变
+      this.camera.position.copy(planetPosition).add(cameraOffset)
+
+      // 获取当前相机到目标的方向
+      const directionToTarget = new THREE.Vector3()
+      directionToTarget.subVectors(this.camera.position, planetPosition).normalize()
+
+      // 计算相机应该在的位置
+      const box = new THREE.Box3().setFromObject(this.targetPlanet)
+      const size = box.getSize(new THREE.Vector3())
+      const minDistance = Math.max(size.x, size.y, size.z) * 2
+
+      // 确保相机不会太靠近行星
+      const currentDistance = this.camera.position.distanceTo(planetPosition)
+      if (currentDistance < minDistance) {
+        const newPosition = planetPosition.clone().add(directionToTarget.multiplyScalar(minDistance))
+        this.camera.position.copy(newPosition)
+      }
+    }
+
     this.labelRenderer.render(this.scene, this.camera)
   }
 
@@ -203,5 +265,103 @@ export class LabelSystem {
       }
     })
     return result
+  }
+
+  onClick(event) {
+    // 检查是否点击了星球或标签
+    const target = event.target
+    let planetName = null
+
+    // 检查是否点击了标签
+    if (target.classList && target.classList.contains('planet-label')) {
+      planetName = target.textContent
+    } else {
+      // 检查是否点击了星球
+      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      const intersects = this.raycaster.intersectObjects(this.scene.children, true)
+
+      if (intersects.length > 0) {
+        const planetObject = intersects.find((intersect) => {
+          const name = this.getPlanetName(intersect.object)
+          return name !== null
+        })
+
+        if (planetObject) {
+          planetName = this.getPlanetName(planetObject.object)
+        }
+      }
+    }
+
+    // 检查是否点击了当前已锁定的星球
+    if (planetName && (!this.isLocked || planetName !== this.targetPlanet?.userData?.planetName)) {
+      this.lockViewToPlanet(planetName)
+    }
+  }
+
+  onKeyDown(event) {
+    if (event.key === 'Escape' && this.isLocked) {
+      this.unlockView()
+    }
+  }
+
+  lockViewToPlanet(planetName) {
+    const planet = this.findObjectByUserData(this.scene, 'planetName', planetName)
+    if (!planet) return
+
+    this.isLocked = true
+    this.targetPlanet = planet
+    this.isTransitioning = true // 开始过渡动画
+    this.escapeHint.style.display = 'block'
+
+    // 获取目标位置
+    const planetPosition = new THREE.Vector3()
+    planet.getWorldPosition(planetPosition)
+
+    // 计算相机目标位置（根据行星大小调整距离）
+    const box = new THREE.Box3().setFromObject(planet)
+    const size = box.getSize(new THREE.Vector3())
+    const distance = Math.max(size.x, size.y, size.z) * 3
+
+    // 计算当前相机到行星的方向
+    const directionToTarget = new THREE.Vector3()
+    directionToTarget.subVectors(this.camera.position, planetPosition).normalize()
+
+    // 根据当前相机方向计算目标位置
+    const targetPosition = planetPosition.clone().add(directionToTarget.multiplyScalar(distance))
+
+    // 使用GSAP执行相机动画
+    gsap.to(this.camera.position, {
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
+      duration: 2,
+      ease: 'power2.inOut'
+    })
+
+    gsap.to(this.controls.target, {
+      x: planetPosition.x,
+      y: planetPosition.y,
+      z: planetPosition.z,
+      duration: 2,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        // 设置控制器的最小和最大距离，限制缩放范围
+        this.controls.minDistance = distance * 0.8
+        this.controls.maxDistance = distance * 5
+        this.isTransitioning = false // 过渡动画结束
+      }
+    })
+  }
+
+  unlockView() {
+    this.isLocked = false
+    this.targetPlanet = null
+    this.isTransitioning = false
+    this.escapeHint.style.display = 'none'
+    // 重置控制器的距离限制
+    this.controls.minDistance = 0.1
+    this.controls.maxDistance = 1000
   }
 }
