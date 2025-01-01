@@ -29,7 +29,7 @@ export class Saturn {
       const material = new THREE.MeshPhongMaterial({
         map: saturnTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.saturn.normalScale, gui.params.saturn.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 100,
         specular: new THREE.Color(0x616161)
       })

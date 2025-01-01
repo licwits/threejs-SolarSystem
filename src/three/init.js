@@ -4,7 +4,6 @@ import { scene } from './scene'
 import { controls } from './controls'
 import { animate } from './animate'
 import { axesHelper } from './axesHelper'
-import { gui } from './gui'
 import { composer } from './composer'
 
 export async function init(container) {
@@ -41,7 +40,4 @@ export async function init(container) {
 
   // 开始动画循环
   animate()
-
-  // 初始化 GUI
-  gui.init()
 }

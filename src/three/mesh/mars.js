@@ -24,7 +24,7 @@ export class Mars {
       const material = new THREE.MeshPhongMaterial({
         map: marsTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.mars.normalScale, gui.params.mars.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 100,
         specular: new THREE.Color(0x616161)
       })

@@ -24,7 +24,7 @@ export class Venus {
       const material = new THREE.MeshPhongMaterial({
         map: venusTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.venus.normalScale, gui.params.venus.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 100,
         specular: new THREE.Color(0x616161)
       })

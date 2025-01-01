@@ -27,7 +27,7 @@ export class Earth {
       const material = new THREE.MeshPhongMaterial({
         map: earthTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.earth.normalScale, gui.params.earth.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         specularMap: specularTexture,
         specular: new THREE.Color(0x333333),
         shininess: 15

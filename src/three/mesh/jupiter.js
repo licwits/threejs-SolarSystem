@@ -24,7 +24,7 @@ export class Jupiter {
       const material = new THREE.MeshPhongMaterial({
         map: jupiterTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.jupiter.normalScale, gui.params.jupiter.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 100,
         specular: new THREE.Color(0x616161)
       })

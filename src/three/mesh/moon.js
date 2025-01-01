@@ -25,7 +25,7 @@ export class Moon {
       const material = new THREE.MeshPhongMaterial({
         map: moonTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.moon.normalScale, gui.params.moon.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 10,
         specular: new THREE.Color(0x666666)
       })

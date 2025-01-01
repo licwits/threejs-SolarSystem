@@ -24,7 +24,7 @@ export class Mercury {
       const material = new THREE.MeshPhongMaterial({
         map: mercuryTexture,
         normalMap: normalTexture,
-        normalScale: new THREE.Vector2(gui.params.mercury.normalScale, gui.params.mercury.normalScale),
+        normalScale: new THREE.Vector2(0.1, 0.1),
         shininess: 100,
         specular: new THREE.Color(0x616161)
       })
