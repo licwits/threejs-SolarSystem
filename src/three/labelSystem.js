@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer'
 import gsap from 'gsap'
+import '@/assets/font/山海汲古明刻_mianfeiziti.com.ttf'
 
 export class LabelSystem {
   constructor() {
@@ -117,9 +118,10 @@ export class LabelSystem {
       element.className = 'planet-label'
       element.textContent = data.name
       element.style.cssText = `
+        font-family: '山海汲古明刻';
         color: #ffffff;
         font-size: 24px;
-        font-weight: bold;
+        font-weight: 600;
         text-shadow: 0 0 10px rgba(0,0,0,0.8);
         transition: opacity 0.3s ease, text-shadow 0.3s ease;
         opacity: 0.8;
