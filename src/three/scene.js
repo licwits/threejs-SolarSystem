@@ -17,6 +17,9 @@ import { Moon } from './mesh/moon'
 import { StarLinks } from './mesh/starLinks'
 import { LabelSystem } from './labelSystem'
 
+/**
+ * 场景
+ */
 export class Scene {
   constructor() {
     this.scene = new THREE.Scene()
@@ -37,6 +40,11 @@ export class Scene {
     this.labelSystem = new LabelSystem()
   }
 
+  /**
+   * 初始化场景
+   * @param {number} bloomLayer - 布卢姆层
+   * @returns {THREE.Scene} 初始化后的场景
+   */
   async init(bloomLayer) {
     // 加载 HDR 环境贴图
     const rgbeLoader = new RGBELoader()
@@ -145,6 +153,9 @@ export class Scene {
     return this.scene
   }
 
+  /**
+   * 动画更新
+   */
   animate() {
     // 更新太阳动画
     this.sun.animate()

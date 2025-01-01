@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 
+/**
+ * 渲染器
+ */
 class Renderer {
   constructor() {
     // 检查 WebGL 支持
@@ -22,6 +25,10 @@ class Renderer {
     this.renderer.outputEncoding = THREE.sRGBEncoding
   }
 
+  /**
+   * 检查WebGL支持
+   * @returns {boolean}
+   */
   checkWebGLSupport() {
     try {
       const canvas = document.createElement('canvas')
@@ -31,6 +38,9 @@ class Renderer {
     }
   }
 
+  /**
+   * 调整渲染器大小
+   */
   resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight)
   }

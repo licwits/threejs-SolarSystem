@@ -4,13 +4,24 @@ import { scene } from '@/three/scene'
 import startIcon from '@/assets/icons/start.svg'
 import pauseIcon from '@/assets/icons/pause.svg'
 
-const isPaused = ref(false)
-const speedMultiplier = ref(1)
-const previousSpeed = ref(1)
-const speedChangeInterval = ref(null)
-const clickTimeout = ref(null)
+/**
+ * @description 控制时间流逝状态和速度的响应式变量
+ */
+const isPaused = ref(false) // 是否暂停
+const speedMultiplier = ref(1) // 速度倍率
+const previousSpeed = ref(1) // 暂停前的速度值,用于恢复
+const speedChangeInterval = ref(null) // 长按改变速度的定时器
+const clickTimeout = ref(null) // 区分单击和长按的定时器
 
+/**
+ * @description 计算属性 - 根据暂停状态返回对应的图标
+ */
 const playPauseIcon = computed(() => (isPaused.value ? startIcon : pauseIcon))
+
+/**
+ * @description 计算属性 - 根据当前速度生成显示文本
+ * @returns {string} 显示的速度文本,包含方向和倍率
+ */
 const speedText = computed(() => {
   if (isPaused.value) return 'PAUSED'
   const speed = Math.abs(speedMultiplier.value)
@@ -18,12 +29,21 @@ const speedText = computed(() => {
   return `${direction}${speed.toFixed(1)}× RATE`
 })
 
+/**
+ * @description 限制速度在合理范围内
+ * @param {number} speed - 需要限制的速度值
+ * @returns {number} 限制后的速度值
+ */
 const clampSpeed = (speed) => {
   return Math.max(-10, Math.min(10, speed))
 }
 
-const SPEED_STEP = 0.1
+const SPEED_STEP = 0.1 // 每次改变速度的步长
 
+/**
+ * @description 改变系统运行速度
+ * @param {string} direction - 改变方向,'forward'或'backward'
+ */
 const changeSpeed = (direction) => {
   if (isPaused.value) {
     isPaused.value = false
@@ -33,6 +53,10 @@ const changeSpeed = (direction) => {
   updateSpeed()
 }
 
+/**
+ * @description 开始持续改变速度(用于长按)
+ * @param {string} direction - 改变方向,'forward'或'backward'
+ */
 const startSpeedChange = (direction) => {
   if (clickTimeout.value) {
     clearTimeout(clickTimeout.value)
@@ -51,6 +75,9 @@ const startSpeedChange = (direction) => {
   changeSpeed(direction)
 }
 
+/**
+ * @description 停止持续改变速度
+ */
 const stopSpeedChange = () => {
   if (clickTimeout.value) {
     clearTimeout(clickTimeout.value)
@@ -61,6 +88,10 @@ const stopSpeedChange = () => {
   speedChangeInterval.value = null
 }
 
+/**
+ * @description 更新所有行星的运动速度
+ * @param {number} multiplier - 速度倍率
+ */
 const updateAllPlanets = (multiplier) => {
   const planets = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'moon']
   planets.forEach((planetName) => {
@@ -76,12 +107,18 @@ const updateAllPlanets = (multiplier) => {
   })
 }
 
+/**
+ * @description 更新系统运行速度
+ */
 const updateSpeed = () => {
   if (!isPaused.value) {
     updateAllPlanets(speedMultiplier.value)
   }
 }
 
+/**
+ * @description 切换暂停/运行状态
+ */
 const togglePause = () => {
   isPaused.value = !isPaused.value
   if (isPaused.value) {

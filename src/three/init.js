@@ -6,6 +6,10 @@ import { animate } from './animate'
 import { axesHelper } from './axesHelper'
 import { composer } from './composer'
 
+/**
+ * 初始化Three.js场景
+ * @param {HTMLElement} container - 包含Three.js渲染器的DOM元素
+ */
 export async function init(container) {
   // 添加渲染器到容器
   container.appendChild(renderer.renderer.domElement)
@@ -20,7 +24,7 @@ export async function init(container) {
   composer.init(scene.scene, camera.camera, renderer.renderer)
 
   // 添加坐标轴辅助
-  axesHelper.init(scene.scene)
+  // axesHelper.init(scene.scene)
 
   // 添加窗口大小改变监听
   window.addEventListener('resize', () => {

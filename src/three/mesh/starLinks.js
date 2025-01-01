@@ -7,26 +7,50 @@ import glowFragmentShader from '@/shader/starLinks/glow/fragment.glsl?raw'
 import nodeVertexShader from '@/shader/starLinks/node/vertex.glsl?raw'
 import nodeFragmentShader from '@/shader/starLinks/node/fragment.glsl?raw'
 
+/**
+ * 星链效果类
+ * 用于创建和管理动态的星链效果,包括节点、连线和发光效果
+ */
 export class StarLinks {
   constructor() {
+    /** 星链组对象,用于管理所有星链相关的网格 */
     this.mesh = new THREE.Group()
+    /** 存储所有活动的星链对象 */
     this.links = []
-    this.maxLinks = 2000 // 增加同时显示的星链数
-    this.minPoints = 4 // 每条星链最少的点数
-    this.maxPoints = 7 // 每条星链最多的点数
-    this.spawnRadius = 4000 // 增大水平生成范围
-    this.spawnHeight = 200 // 增大垂直生成范围
-    this.linkLifeTime = 10 // 星链存在时间(秒)
-    this.nodeMovementSpeed = 0.5 // 增加节点移动速度
-    this.nodeMovementRange = 0.3 // 调整节点移动范围
+    /** 同时显示的最大星链数量 */
+    this.maxLinks = 2000 
+    /** 每条星链的最少节点数 */
+    this.minPoints = 4 
+    /** 每条星链的最多节点数 */
+    this.maxPoints = 7 
+    /** 星链生成的水平范围(单位:像素) */
+    this.spawnRadius = 4000 
+    /** 星链生成的垂直范围(单位:像素) */
+    this.spawnHeight = 200 
+    /** 每条星链的生命周期(单位:秒) */
+    this.linkLifeTime = 10 
+    /** 节点移动的速度系数 */
+    this.nodeMovementSpeed = 0.5 
+    /** 节点移动的范围系数 */
+    this.nodeMovementRange = 0.3 
+    /** 用于动画的时间累加器 */
     this.time = 0
-    this.glowMeshes = [] // 存储发光效果的网格
+    /** 存储所有发光效果网格的数组 */
+    this.glowMeshes = [] 
+    /** 泛光效果层级引用 */
     this.bloomLayer = null
   }
 
+  /**
+   * 初始化星链系统
+   * @param {THREE.Layers} bloomLayer - 泛光效果层级
+   * @returns {THREE.Group} 星链组对象
+   */
   init(bloomLayer) {
     this.bloomLayer = bloomLayer
+    
     // 创建星链节点的材质
+    /** 节点着色器材质 */
     this.nodeMaterial = new THREE.ShaderMaterial({
       uniforms: {
         color: { value: new THREE.Color(0xffffff) },
@@ -42,21 +66,23 @@ export class StarLinks {
     })
 
     // 创建星链线条的材质
+    /** 线条材质 */
     this.lineMaterial = new LineMaterial({
-      color: 0x66ccff, // 调整为更亮的蓝色
+      color: 0x66ccff,
       transparent: true,
       opacity: 0,
       blending: THREE.AdditiveBlending,
-      linewidth: 3, // 减小线条宽度
+      linewidth: 3,
       resolution: new THREE.Vector2(window.innerWidth, window.innerHeight),
       dashed: false,
       alphaToCoverage: false,
-      vertexColors: true, // 启用顶点颜色以实现渐变效果
+      vertexColors: true,
       depthWrite: false,
       depthTest: true
     })
 
     // 创建发光效果的材质
+    /** 发光效果着色器材质 */
     this.glowMaterial = new THREE.ShaderMaterial({
       uniforms: {
         color: { value: new THREE.Color(0x66ccff) },
@@ -75,31 +101,48 @@ export class StarLinks {
     return this.mesh
   }
 
+  /**
+   * 创建一条新的星链
+   * 包括节点、连线和发光效果
+   */
   createLink() {
     // 生成随机点
+    /** 随机生成的节点数量 */
     const pointCount = Math.floor(Math.random() * (this.maxPoints - this.minPoints + 1)) + this.minPoints
+    /** 存储节点位置的数组 */
     const points = []
 
     // 随机选择一个起始位置
+    /** 中心点X坐标 */
     const centerX = (Math.random() - 0.5) * this.spawnRadius
+    /** 中心点Z坐标 */
     const centerZ = (Math.random() - 0.5) * this.spawnRadius
+    /** 中心点Y坐标 */
     const centerY = (Math.random() - 0.5) * this.spawnHeight
 
     // 生成一条曲线上的点
     for (let i = 0; i < pointCount; i++) {
+      /** 当前点在曲线上的比例(0-1) */
       const t = i / (pointCount - 1)
+      /** X坐标(添加随机偏移) */
       const x = centerX + (Math.random() - 0.5) * 20
+      /** Y坐标(正弦曲线加随机偏移) */
       const y = centerY + Math.sin(t * Math.PI) * 15 + (Math.random() - 0.5) * 8
+      /** Z坐标(添加随机偏移) */
       const z = centerZ + (Math.random() - 0.5) * 20
       points.push(new THREE.Vector3(x, y, z))
     }
 
     // 创建节点
+    /** 节点几何体 */
     const nodesGeometry = new THREE.BufferGeometry().setFromPoints(points)
+    /** 节点网格对象 */
     const nodes = new THREE.Points(nodesGeometry, this.nodeMaterial.clone())
 
     // 创建连线
+    /** 线条几何体 */
     const lineGeometry = new LineGeometry()
+    /** 线条顶点位置数组 */
     const positions = points.reduce((arr, point) => {
       arr.push(point.x, point.y, point.z)
       return arr
@@ -107,11 +150,13 @@ export class StarLinks {
     lineGeometry.setPositions(positions)
 
     // 添加颜色属性以创建渐变效果
+    /** 存储顶点颜色的数组 */
     const colors = []
     for (let i = 0; i < points.length; i++) {
-      // 创建更强烈的渐变效果
+      /** 当前点在线条上的比例(0-1) */
       const t = i / (points.length - 1)
-      const intensity = Math.pow(Math.sin(t * Math.PI), 0.5) // 使用幂函数使渐变更明显
+      /** 颜色强度,使用幂函数使渐变更明显 */
+      const intensity = Math.pow(Math.sin(t * Math.PI), 0.5)
       // 从亮蓝色渐变到暗蓝色
       colors.push(
         0.4 + intensity * 0.6, // R
@@ -121,12 +166,16 @@ export class StarLinks {
     }
     lineGeometry.setColors(colors)
 
+    /** 线条材质实例 */
     const material = this.lineMaterial.clone()
+    /** 线条网格对象 */
     const line = new Line2(lineGeometry, material)
     line.computeLineDistances()
 
     // 存储原始位置用于动画
+    /** 存储节点原始位置的数组 */
     const originalPositions = points.map((p) => p.clone())
+    /** 存储节点移动偏移量的数组 */
     const movementOffsets = points.map(() => ({
       x: Math.random() * Math.PI * 2,
       y: Math.random() * Math.PI * 2,
@@ -134,7 +183,9 @@ export class StarLinks {
     }))
 
     // 为每个点创建发光效果
+    /** 发光效果平面几何体 */
     const glowGeometry = new THREE.PlaneGeometry(30, 30)
+    /** 发光效果网格数组 */
     const glowMeshes = points.map((point) => {
       const glowMaterial = this.glowMaterial.clone()
       glowMaterial.uniforms = {
@@ -150,13 +201,14 @@ export class StarLinks {
     })
 
     // 创建星链对象
+    /** 完整的星链对象 */
     const link = {
       nodes,
       line,
       points,
       originalPositions,
       movementOffsets,
-      glowMeshes, // 添加发光网格数组
+      glowMeshes,
       life: this.linkLifeTime,
       fadeIn: true,
       fadeOut: false
@@ -167,6 +219,10 @@ export class StarLinks {
     this.mesh.add(line)
   }
 
+  /**
+   * 更新星链动画
+   * @param {number} deltaTime - 帧间隔时间(秒)
+   */
   animate(deltaTime) {
     this.time += deltaTime
 
@@ -177,6 +233,7 @@ export class StarLinks {
 
     // 更新现有星链
     for (let i = this.links.length - 1; i >= 0; i--) {
+      /** 当前处理的星链对象 */
       const link = this.links[i]
 
       // 更新生命周期
@@ -184,21 +241,19 @@ export class StarLinks {
 
       // 检查是否需要移除星链
       if (link.life <= 0) {
-        // 移除网格
+        // 移除网格并释放资源
         this.mesh.remove(link.nodes)
         this.mesh.remove(link.line)
-        // 释放几何体和材质
         link.nodes.geometry.dispose()
         link.line.geometry.dispose()
         link.nodes.material.dispose()
         link.line.material.dispose()
-        // 在移除星链时也要清理发光效果
+        // 清理发光效果
         link.glowMeshes.forEach((glowMesh) => {
           this.mesh.remove(glowMesh)
           glowMesh.geometry.dispose()
           glowMesh.material.dispose()
         })
-        // 从数组中移除
         this.links.splice(i, 1)
         continue
       }
@@ -223,13 +278,18 @@ export class StarLinks {
       }
 
       // 更新节点位置
+      /** 存储更新后的节点位置 */
       const positions = []
+      /** 存储更新后的线条顶点位置 */
       const linePositions = []
 
       for (let j = 0; j < link.points.length; j++) {
+        /** 当前节点的移动偏移量 */
         const offset = link.movementOffsets[j]
+        /** 当前节点的原始位置 */
         const orig = link.originalPositions[j]
 
+        // 使用正弦函数计算新位置
         const x = orig.x + Math.sin(offset.x + performance.now() * 0.001 * this.nodeMovementSpeed) * this.nodeMovementRange
         const y = orig.y + Math.sin(offset.y + performance.now() * 0.001 * this.nodeMovementSpeed) * this.nodeMovementRange
         const z = orig.z + Math.sin(offset.z + performance.now() * 0.001 * this.nodeMovementSpeed) * this.nodeMovementRange
@@ -245,6 +305,7 @@ export class StarLinks {
 
       // 更新发光效果
       link.glowMeshes.forEach((glowMesh, index) => {
+        /** 当前发光效果对应的节点位置 */
         const pos = positions[index]
         glowMesh.position.copy(pos)
         glowMesh.material.uniforms.time.value = this.time
