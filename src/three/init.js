@@ -9,8 +9,10 @@ import { composer } from './composer'
 /**
  * 初始化Three.js场景
  * @param {HTMLElement} container - 包含Three.js渲染器的DOM元素
+ * @param {(progress: number) => void} onProgress - 加载进度回调函数
+ * @returns {Promise<void>}
  */
-export async function init(container) {
+export async function init(container, onProgress) {
   // 添加渲染器到容器
   container.appendChild(renderer.renderer.domElement)
 
@@ -18,7 +20,11 @@ export async function init(container) {
   controls.init()
 
   // 初始化场景
-  await scene.init()
+  await scene.init((progress) => {
+    if (onProgress) {
+      onProgress(progress)
+    }
+  })
 
   // 初始化后处理
   composer.init(scene.scene, camera.camera, renderer.renderer)

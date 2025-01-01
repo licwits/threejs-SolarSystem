@@ -37,18 +37,13 @@ export class StarLinks {
     this.time = 0
     /** 存储所有发光效果网格的数组 */
     this.glowMeshes = [] 
-    /** 泛光效果层级引用 */
-    this.bloomLayer = null
   }
 
   /**
    * 初始化星链系统
-   * @param {THREE.Layers} bloomLayer - 泛光效果层级
    * @returns {THREE.Group} 星链组对象
    */
-  init(bloomLayer) {
-    this.bloomLayer = bloomLayer
-    
+  init() {
     // 创建星链节点的材质
     /** 节点着色器材质 */
     this.nodeMaterial = new THREE.ShaderMaterial({
